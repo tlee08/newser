@@ -12,8 +12,12 @@ type NewsApiResponse = {
   error?: string;
 };
 
-export async function fetchDailyNews(): Promise<NewsArticle[]> {
-  const response = await fetch('/api/news');
+export async function fetchDailyNews(country?: string): Promise<NewsArticle[]> {
+  const url = new URL('/api/news', window.location.origin);
+  if (country) {
+    url.searchParams.set('country', country);
+  }
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('NewsAPI briefing desk dropped its sandwich.');

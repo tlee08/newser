@@ -1,6 +1,19 @@
-import { Anchor, Badge, Button, Card, Group, Image, Progress, Radio, Stack, Text, Title } from '@mantine/core';
-import { ExternalLink, RotateCcw, Sparkles } from 'lucide-react';
-import type { QuizQuestion } from '../types/news';
+import {
+  Anchor,
+  Badge,
+  Button,
+  Card,
+  Group,
+  Image,
+  Progress,
+  Radio,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { ExternalLink, RotateCcw, Sparkles } from "lucide-react";
+import { useEffect, useRef } from "react";
+import type { QuizQuestion } from "../types/news";
 
 type QuestionCardProps = {
   question: QuizQuestion;
@@ -25,9 +38,17 @@ export function QuestionCard({
   onSelect,
   onSubmit,
   onNext,
-  onRestart
+  onRestart,
 }: QuestionCardProps) {
   const isFinal = questionNumber === totalQuestions;
+  const firstOptionRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!answered && firstOptionRef.current) {
+      const timer = setTimeout(() => firstOptionRef.current?.focus(), 80);
+      return () => clearTimeout(timer);
+    }
+  }, [question.id, answered]);
 
   return (
     <Card className="quiz-card" shadow="xl" padding="xl">
@@ -41,10 +62,20 @@ export function QuestionCard({
           </Badge>
         </Group>
 
-        <Progress value={(questionNumber / totalQuestions) * 100} color="pink" radius="xs" size="md" />
+        <Progress
+          value={(questionNumber / totalQuestions) * 100}
+          color="pink"
+          radius="xs"
+          size="md"
+        />
 
         {question.imageUrl ? (
-          <Image src={question.imageUrl} alt="" className="news-image" fallbackSrc="/news-placeholder.svg" />
+          <Image
+            src={question.imageUrl}
+            alt=""
+            className="news-image"
+            fallbackSrc="/news-placeholder.svg"
+          />
         ) : (
           <div className="image-fallback">Breaking-ish</div>
         )}
@@ -58,9 +89,13 @@ export function QuestionCard({
 
         <Radio.Group value={selectedAnswer} onChange={onSelect}>
           <Stack gap="sm">
-            {question.options.map((option) => {
+            {question.options.map((option, index) => {
               const isCorrect = answered && option === question.correctAnswer;
-              const isWrongPick = answered && selectedAnswer === option && option !== question.correctAnswer;
+              const isWrongPick =
+                answered &&
+                selectedAnswer === option &&
+                option !== question.correctAnswer;
+              const isFirst = index === 0;
               return (
                 <Radio.Card
                   className="answer-option"
@@ -69,6 +104,7 @@ export function QuestionCard({
                   value={option}
                   key={option}
                   disabled={answered}
+                  ref={isFirst ? firstOptionRef : undefined}
                 >
                   <Group wrap="nowrap" align="flex-start">
                     <Radio.Indicator />
@@ -82,7 +118,11 @@ export function QuestionCard({
 
         {answered ? (
           <Stack className="summary-strip" gap="sm">
-            <Text fw={800}>{selectedAnswer === question.correctAnswer ? 'Correct. The newsroom salutes you.' : 'Nope. The headline had other plans.'}</Text>
+            <Text fw={800}>
+              {selectedAnswer === question.correctAnswer
+                ? "Correct. The newsroom salutes you."
+                : "Nope. The headline had other plans."}
+            </Text>
             <Text>{question.summary}</Text>
             <Anchor href={question.articleUrl} target="_blank" rel="noreferrer">
               <Group gap={6}>
@@ -93,12 +133,17 @@ export function QuestionCard({
         ) : null}
 
         <Group justify="space-between">
-          <Button variant="subtle" color="dark" leftSection={<RotateCcw size={18} />} onClick={onRestart}>
+          <Button
+            variant="subtle"
+            color="dark"
+            leftSection={<RotateCcw size={18} />}
+            onClick={onRestart}
+          >
             Restart
           </Button>
           {answered ? (
             <Button color="dark" onClick={onNext}>
-              {isFinal ? 'Show my score' : 'Next headline'}
+              {isFinal ? "Show my score" : "Next headline"}
             </Button>
           ) : (
             <Button color="pink" onClick={onSubmit} disabled={!selectedAnswer}>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Space+Grotesk:wght@700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Space+Grotesk:wght@700;800&display=swap");
 
 :root {
   color: #1f1b18;
@@ -22,7 +22,8 @@ body {
 .app-shell {
   min-height: 100vh;
   background:
-    linear-gradient(90deg, rgba(31, 27, 24, 0.09) 1px, transparent 1px) 0 0 / 42px 42px,
+    linear-gradient(90deg, rgba(31, 27, 24, 0.09) 1px, transparent 1px) 0 0 /
+      42px 42px,
     radial-gradient(circle at 12% 8%, #ff6b9c 0 9%, transparent 10%),
     radial-gradient(circle at 86% 18%, #38d9a9 0 8%, transparent 9%),
     #f7e14b;
@@ -75,9 +76,13 @@ body {
   place-items: center;
   border: 3px dashed #1f1b18;
   border-radius: 6px;
-  background: repeating-linear-gradient(-12deg, #38d9a9 0 18px, #fffdf2 18px 34px);
+  background: repeating-linear-gradient(
+    -12deg,
+    #38d9a9 0 18px,
+    #fffdf2 18px 34px
+  );
   color: #1f1b18;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: clamp(2rem, 8vw, 4.5rem);
   font-weight: 900;
   text-transform: uppercase;
@@ -91,7 +96,10 @@ body {
   transition:
     transform 140ms ease,
     box-shadow 140ms ease,
-    background 140ms ease;
+    background 140ms ease,
+    outline-color 140ms ease;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
 }
 
 .answer-option:hover {
@@ -99,11 +107,17 @@ body {
   box-shadow: 4px 4px 0 #1f1b18;
 }
 
-.answer-option[data-correct='true'] {
+.answer-option:focus-visible {
+  outline-color: #ff6b9c;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 #1f1b18;
+}
+
+.answer-option[data-correct="true"] {
   background: #c3fae8;
 }
 
-.answer-option[data-wrong='true'] {
+.answer-option[data-wrong="true"] {
   background: #ffd8e8;
 }
 

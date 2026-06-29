@@ -1,13 +1,15 @@
-import { Button, Card, Group, Stack, Text, Title } from '@mantine/core';
-import { RotateCcw, Trophy } from 'lucide-react';
+import { Badge, Button, Card, Group, Stack, Text, Title } from '@mantine/core';
+import { RotateCcw, Share2, Trophy, Zap } from 'lucide-react';
+import { shareScore } from '../services/streaks';
 
 type ScoreScreenProps = {
   score: number;
   total: number;
+  streak: number;
   onRestart: () => void;
 };
 
-export function ScoreScreen({ score, total, onRestart }: ScoreScreenProps) {
+export function ScoreScreen({ score, total, streak, onRestart }: ScoreScreenProps) {
   const verdict =
     score === total
       ? 'Pulitzer adjacent. Extremely suspicious.'
@@ -27,12 +29,20 @@ export function ScoreScreen({ score, total, onRestart }: ScoreScreenProps) {
         <Text size="xl" fw={800} ta="center">
           {verdict}
         </Text>
+        {streak > 1 ? (
+          <Badge color="pink" variant="filled" size="lg" leftSection={<Zap size={16} />}>
+            {streak}-day streak
+          </Badge>
+        ) : null}
         <Text ta="center" c="dark.5">
           Come back tomorrow for five more tiny chaos nuggets from the global briefing desk.
         </Text>
         <Group>
           <Button color="pink" leftSection={<RotateCcw size={18} />} onClick={onRestart}>
             Play again
+          </Button>
+          <Button variant="outline" color="dark" leftSection={<Share2 size={18} />} onClick={() => shareScore(score, total, streak)}>
+            Share
           </Button>
         </Group>
       </Stack>

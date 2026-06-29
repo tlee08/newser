@@ -19,10 +19,12 @@ Curious readers who want a quick, playful briefing. The app should feel like a l
 
 ## Current Boundaries
 
-- The scaffold creates quiz questions in the browser from NewsAPI article metadata.
-- The Vite dev server owns the NewsAPI key and returns normalized article data.
-- If `NEWSAPI_KEY` is missing or NewsAPI returns too few items, fallback demo articles keep the app usable.
-- No database, auth, user accounts, or persistent daily streaks are included yet.
+- The app fetches live news from NewsAPI and generates quizzes via DeepSeek LLM (server-side).
+- The Vite dev server owns both API keys and returns quiz data to the browser.
+- If keys are missing or APIs fail, rule-based quiz generation with fallback demo articles keeps the app usable.
+- Country filtering is limited to US/Worldwide due to NewsAPI free-tier restrictions.
+- No database, auth, or user accounts are included yet.
+- Streaks are persisted in localStorage.
 
 ## Factuality Rules
 

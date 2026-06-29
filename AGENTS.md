@@ -34,9 +34,10 @@ Create a local `.env` file:
 
 ```bash
 NEWSAPI_KEY=your_key_here
+DEEPSEEK_API_KEY=your_deepseek_key_here
 ```
 
-During Vite development, `/api/news` is served by `vite.config.ts` and calls NewsAPI server-side. If no key is present, the app uses demo headlines.
+During Vite development, `/api/news` and `/api/generate-quiz` are served by `vite.config.ts` calling NewsAPI and DeepSeek server-side. If no keys are present, the app uses demo headlines and rule-based quiz generation.
 
 ## Commands
 
@@ -46,4 +47,7 @@ pnpm dev
 pnpm typecheck
 pnpm build
 pnpm test
+pnpm start
 ```
+
+`pnpm start` runs the production Node server (`server.mjs`) which serves the static build and proxies `/api/news` to NewsAPI using `NEWSAPI_KEY` from the environment. For platforms like Railway, Render, or Fly.io, set `NEWSAPI_KEY` as an environment variable and the build command to `pnpm build` and start command to `pnpm start`.
