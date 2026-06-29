@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="News placeholder">
+  <rect width="1200" height="600" fill="#f7e14b"/>
+  <path d="M0 120h1200M0 240h1200M0 360h1200M0 480h1200" stroke="#1f1b18" stroke-width="8" opacity=".18"/>
+  <circle cx="220" cy="160" r="92" fill="#ff6b9c" stroke="#1f1b18" stroke-width="12"/>
+  <rect x="360" y="130" width="610" height="50" fill="#1f1b18"/>
+  <rect x="360" y="230" width="720" height="42" fill="#1f1b18"/>
+  <rect x="360" y="320" width="540" height="42" fill="#1f1b18"/>
+  <rect x="120" y="420" width="960" height="52" fill="#38d9a9" stroke="#1f1b18" stroke-width="10"/>
+</svg>

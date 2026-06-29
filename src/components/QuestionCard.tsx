@@ -1,0 +1,112 @@
+import { Anchor, Badge, Button, Card, Group, Image, Progress, Radio, Stack, Text, Title } from '@mantine/core';
+import { ExternalLink, RotateCcw, Sparkles } from 'lucide-react';
+import type { QuizQuestion } from '../types/news';
+
+type QuestionCardProps = {
+  question: QuizQuestion;
+  questionNumber: number;
+  totalQuestions: number;
+  selectedAnswer: string | null;
+  answered: boolean;
+  score: number;
+  onSelect: (answer: string) => void;
+  onSubmit: () => void;
+  onNext: () => void;
+  onRestart: () => void;
+};
+
+export function QuestionCard({
+  question,
+  questionNumber,
+  totalQuestions,
+  selectedAnswer,
+  answered,
+  score,
+  onSelect,
+  onSubmit,
+  onNext,
+  onRestart
+}: QuestionCardProps) {
+  const isFinal = questionNumber === totalQuestions;
+
+  return (
+    <Card className="quiz-card" shadow="xl" padding="xl">
+      <Stack gap="lg">
+        <Group justify="space-between" align="center">
+          <Badge color="dark" variant="filled">
+            Question {questionNumber} / {totalQuestions}
+          </Badge>
+          <Badge color="pink" leftSection={<Sparkles size={14} />}>
+            Score {score}
+          </Badge>
+        </Group>
+
+        <Progress value={(questionNumber / totalQuestions) * 100} color="pink" radius="xs" size="md" />
+
+        {question.imageUrl ? (
+          <Image src={question.imageUrl} alt="" className="news-image" fallbackSrc="/news-placeholder.svg" />
+        ) : (
+          <div className="image-fallback">Breaking-ish</div>
+        )}
+
+        <Stack gap="xs">
+          <Text size="sm" fw={700} c="pink.7">
+            {question.source}
+          </Text>
+          <Title order={2}>{question.prompt}</Title>
+        </Stack>
+
+        <Radio.Group value={selectedAnswer} onChange={onSelect}>
+          <Stack gap="sm">
+            {question.options.map((option) => {
+              const isCorrect = answered && option === question.correctAnswer;
+              const isWrongPick = answered && selectedAnswer === option && option !== question.correctAnswer;
+              return (
+                <Radio.Card
+                  className="answer-option"
+                  data-correct={isCorrect || undefined}
+                  data-wrong={isWrongPick || undefined}
+                  value={option}
+                  key={option}
+                  disabled={answered}
+                >
+                  <Group wrap="nowrap" align="flex-start">
+                    <Radio.Indicator />
+                    <Text fw={700}>{option}</Text>
+                  </Group>
+                </Radio.Card>
+              );
+            })}
+          </Stack>
+        </Radio.Group>
+
+        {answered ? (
+          <Stack className="summary-strip" gap="sm">
+            <Text fw={800}>{selectedAnswer === question.correctAnswer ? 'Correct. The newsroom salutes you.' : 'Nope. The headline had other plans.'}</Text>
+            <Text>{question.summary}</Text>
+            <Anchor href={question.articleUrl} target="_blank" rel="noreferrer">
+              <Group gap={6}>
+                Read the source <ExternalLink size={16} />
+              </Group>
+            </Anchor>
+          </Stack>
+        ) : null}
+
+        <Group justify="space-between">
+          <Button variant="subtle" color="dark" leftSection={<RotateCcw size={18} />} onClick={onRestart}>
+            Restart
+          </Button>
+          {answered ? (
+            <Button color="dark" onClick={onNext}>
+              {isFinal ? 'Show my score' : 'Next headline'}
+            </Button>
+          ) : (
+            <Button color="pink" onClick={onSubmit} disabled={!selectedAnswer}>
+              Lock in the take
+            </Button>
+          )}
+        </Group>
+      </Stack>
+    </Card>
+  );
+}
