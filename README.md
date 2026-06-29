@@ -69,6 +69,7 @@ Articles → buildDailyQuiz(articles, seed?)
 ```
 
 Question structure:
+
 - **Prompt**: Humorous, category-matched (e.g., "What political saga is unfolding in this headline?")
 - **Options**: Correct answer (compact headline) + 2 real headline decoys + 1 absurd decoy — shuffles deterministically per day
 - **Summary**: The article description, kept factual
@@ -98,16 +99,17 @@ generateLLMQuiz(articles)
 
 ### 4. Store Data
 
-| Data | Storage | Lifetime |
-|------|---------|----------|
-| News articles | React state (`useState`) | Per session (cleared on refresh/restart) |
-| Quiz questions | React state + derived (`useMemo`) | Per session |
-| Current streak | `localStorage` (`newser-streak-count`) | Persistent across sessions |
-| Last play date | `localStorage` (`newser-last-play-date`) | Persistent |
-| API keys | `process.env` (server-side only) | Configured at deploy |
-| Category / country prefs | React state | Per session |
+| Data                     | Storage                                  | Lifetime                                 |
+| ------------------------ | ---------------------------------------- | ---------------------------------------- |
+| News articles            | React state (`useState`)                 | Per session (cleared on refresh/restart) |
+| Quiz questions           | React state + derived (`useMemo`)        | Per session                              |
+| Current streak           | `localStorage` (`newser-streak-count`)   | Persistent across sessions               |
+| Last play date           | `localStorage` (`newser-last-play-date`) | Persistent                               |
+| API keys                 | `process.env` (server-side only)         | Configured at deploy                     |
+| Category / country prefs | React state                              | Per session                              |
 
 **Streak logic** (`src/services/streaks.ts`):
+
 - Play today → +1 if yesterday was played, else reset to 1
 - Same-day replay → no change
 - Uses UTC dates so streaks work across timezones
@@ -130,6 +132,7 @@ The app is a **finite state machine** with three stages:
 - `ScoreScreen.tsx` — Final results. Trophy icon, score fraction, contextual verdict, streak badge, share button (Web Share API with clipboard fallback).
 
 **Styling** (`src/styles.css`):
+
 - "Tabloid trivia arcade" aesthetic — yellow background, punchy black borders, offset shadows, Space Grotesk headings.
 - Pink accent color for interactive elements.
 - Responsive at 640px breakpoint.

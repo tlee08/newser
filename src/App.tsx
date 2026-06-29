@@ -214,6 +214,7 @@ export default function App() {
 
           {stage === "playing" && currentQuestion ? (
             <QuestionCard
+              key={currentQuestion.id}
               question={currentQuestion}
               questionNumber={questionIndex + 1}
               totalQuestions={quiz.length}

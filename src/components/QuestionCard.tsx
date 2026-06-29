@@ -71,6 +71,7 @@ export function QuestionCard({
 
         {question.imageUrl ? (
           <Image
+            key={question.imageUrl}
             src={question.imageUrl}
             alt=""
             className="news-image"
