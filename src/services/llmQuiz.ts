@@ -1,4 +1,4 @@
-import type { NewsArticle, QuizQuestion } from '../types/news';
+import type { NewsArticle, QuizQuestion } from "../types/news";
 
 type LLMQuizResponse = {
   quiz?: Array<{
@@ -11,12 +11,14 @@ type LLMQuizResponse = {
   error?: string;
 };
 
-export async function generateLLMQuiz(articles: NewsArticle[]): Promise<QuizQuestion[]> {
+export async function generateLLMQuiz(
+  articles: NewsArticle[],
+): Promise<QuizQuestion[]> {
   try {
-    const response = await fetch('/api/generate-quiz', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articles })
+    const response = await fetch("/api/generate-quiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ articles }),
     });
 
     if (!response.ok) {
@@ -32,9 +34,9 @@ export async function generateLLMQuiz(articles: NewsArticle[]): Promise<QuizQues
       correctAnswer: q.correctAnswer,
       options: q.options,
       summary: q.summary,
-      source: articles[i]?.source ?? 'NewsAPI',
-      articleUrl: articles[i]?.url ?? '#',
-      imageUrl: articles[i]?.imageUrl
+      source: articles[i]?.source ?? "NewsAPI",
+      articleUrl: articles[i]?.url ?? "#",
+      imageUrl: articles[i]?.imageUrl,
     }));
   } catch {
     return [];

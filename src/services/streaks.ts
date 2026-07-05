@@ -1,8 +1,8 @@
-const STREAK_KEY = 'newser-streak-count';
-const DATE_KEY = 'newser-last-play-date';
+const STREAK_KEY = "newser-streak-count";
+const DATE_KEY = "newser-last-play-date";
 
 function todayKey(date: Date = new Date()): string {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 
 export function getStreak(): number {
@@ -46,23 +46,32 @@ export function recordPlay(): number {
   return streak;
 }
 
-export function generateShareText(score: number, total: number, streak: number): string {
-  const flame = streak >= 7 ? '🔥'.repeat(Math.min(streak, 14)) : streak > 0 ? `🔥 ${streak}-day streak` : '';
+export function generateShareText(
+  score: number,
+  total: number,
+  streak: number,
+): string {
+  const flame =
+    streak >= 7
+      ? "🔥".repeat(Math.min(streak, 14))
+      : streak > 0
+        ? `🔥 ${streak}-day streak`
+        : "";
   const headline =
     score === total
-      ? 'I just swept the Newser daily briefing. Suspiciously well-informed.'
+      ? "I just swept the Newser daily briefing. Suspiciously well-informed."
       : score >= 3
         ? `I scored ${score}/${total} on today's Newser quiz. The news cycle didn't stand a chance.`
         : `I scored ${score}/${total} on Newser. The headlines won this round.`;
 
-  return [headline, flame, 'https://newser.app'].filter(Boolean).join(' • ');
+  return [headline, flame, "https://newser.app"].filter(Boolean).join(" • ");
 }
 
 export function shareScore(score: number, total: number, streak: number): void {
   const text = generateShareText(score, total, streak);
 
   if (navigator.share) {
-    navigator.share({ text, title: 'Newser Daily Briefing' }).catch(() => {
+    navigator.share({ text, title: "Newser Daily Briefing" }).catch(() => {
       // user cancelled or share failed, no fallback needed
     });
   } else {

@@ -1,5 +1,5 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 
 type NewsApiArticle = {
   title?: string;
@@ -28,16 +28,18 @@ type QuizQuestionOutput = {
 
 function readJsonBody(req: any): Promise<any> {
   return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', (chunk: string) => { body += chunk; });
-    req.on('end', () => {
+    let body = "";
+    req.on("data", (chunk: string) => {
+      body += chunk;
+    });
+    req.on("end", () => {
       try {
         resolve(JSON.parse(body));
       } catch {
-        reject(new Error('Invalid JSON'));
+        reject(new Error("Invalid JSON"));
       }
     });
-    req.on('error', reject);
+    req.on("error", reject);
   });
 }
 
@@ -47,14 +49,17 @@ function normalizeArticlesForLLM(articles: any[]): QuizArticleInput[] {
     .slice(0, 5)
     .map((a: any) => ({
       title: a.title,
-      description: a.description ?? '',
+      description: a.description ?? "",
       url: a.url,
-      source: a.source ?? 'Unknown',
-      imageUrl: a.imageUrl ?? a.urlToImage
+      source: a.source ?? "Unknown",
+      imageUrl: a.imageUrl ?? a.urlToImage,
     }));
 }
 
-async function generateQuizWithLLM(articles: QuizArticleInput[], apiKey?: string): Promise<QuizQuestionOutput[]> {
+async function generateQuizWithLLM(
+  articles: QuizArticleInput[],
+  apiKey?: string,
+): Promise<QuizQuestionOutput[]> {
   if (!apiKey || articles.length < 5) {
     return [];
   }
@@ -78,28 +83,34 @@ Format:
   "summary": "One sentence factual summary"
 }]`;
 
-  const articleText = articles.map((a, i) =>
-    `Article ${i + 1}:
+  const articleText = articles
+    .map(
+      (a, i) =>
+        `Article ${i + 1}:
 Title: ${a.title}
 Source: ${a.source}
-Description: ${a.description}`
-  ).join('\n\n');
+Description: ${a.description}`,
+    )
+    .join("\n\n");
 
-  const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-    method: 'POST',
+  const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: 'deepseek-chat',
+      model: "deepseek-chat",
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Generate a 5-question quiz from these articles:\n\n${articleText}` }
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `Generate a 5-question quiz from these articles:\n\n${articleText}`,
+        },
       ],
       max_tokens: 2000,
-      temperature: 0.9
-    })
+      temperature: 0.9,
+    }),
   });
 
   if (!response.ok) {
@@ -107,18 +118,19 @@ Description: ${a.description}`
   }
 
   const payload = await response.json();
-  const raw = payload?.choices?.[0]?.message?.content ?? '';
+  const raw = payload?.choices?.[0]?.message?.content ?? "";
 
   try {
-    const cleaned = raw.replace(/```(?:json)?/g, '').trim();
+    const cleaned = raw.replace(/```(?:json)?/g, "").trim();
     const parsed = JSON.parse(cleaned) as any[];
     if (!Array.isArray(parsed) || parsed.length === 0) return [];
     return parsed.slice(0, 5).map((q: any, i: number) => ({
-      id: `${i}-${articles[i]?.title ?? 'llm'}`,
-      prompt: q.prompt ?? 'What just happened?',
-      correctAnswer: q.correctAnswer ?? articles[i]?.title ?? '',
-      options: Array.isArray(q.options) && q.options.length === 4 ? q.options : [],
-      summary: q.summary ?? articles[i]?.description ?? ''
+      id: `${i}-${articles[i]?.title ?? "llm"}`,
+      prompt: q.prompt ?? "What just happened?",
+      correctAnswer: q.correctAnswer ?? articles[i]?.title ?? "",
+      options:
+        Array.isArray(q.options) && q.options.length === 4 ? q.options : [],
+      summary: q.summary ?? articles[i]?.description ?? "",
     }));
   } catch {
     return [];
@@ -126,14 +138,14 @@ Description: ${a.description}`
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), "");
 
   function makeNewsApiMiddleware(): Plugin {
     return {
-      name: 'newser-api-dev-middleware',
+      name: "newser-api-dev-middleware",
       configureServer(server) {
-        server.middlewares.use('/api/news', async (req, res) => {
-          res.setHeader('Content-Type', 'application/json');
+        server.middlewares.use("/api/news", async (req, res) => {
+          res.setHeader("Content-Type", "application/json");
 
           const apiKey = env.NEWSAPI_KEY;
           if (!apiKey) {
@@ -142,52 +154,70 @@ export default defineConfig(({ mode }) => {
             return;
           }
 
-          const url = new URL('https://newsapi.org/v2/top-headlines');
-          const reqUrl = new URL(req.url ?? '/', 'http://localhost');
-          url.searchParams.set('language', 'en');
-          url.searchParams.set('pageSize', '20');
-          url.searchParams.set('apiKey', apiKey);
+          const url = new URL("https://newsapi.org/v2/top-headlines");
+          const reqUrl = new URL(req.url ?? "/", "http://localhost");
+          url.searchParams.set("language", "en");
+          url.searchParams.set("pageSize", "20");
+          url.searchParams.set("apiKey", apiKey);
 
-          const country = reqUrl.searchParams.get('country');
+          const country = reqUrl.searchParams.get("country");
           if (country) {
-            url.searchParams.set('country', country);
+            url.searchParams.set("country", country);
           }
 
           try {
             const response = await fetch(url);
-            const payload = (await response.json()) as { articles?: NewsApiArticle[]; message?: string };
+            const payload = (await response.json()) as {
+              articles?: NewsApiArticle[];
+              message?: string;
+            };
 
             if (!response.ok) {
               res.statusCode = response.status;
-              res.end(JSON.stringify({ error: payload.message ?? 'NewsAPI request failed', articles: [] }));
+              res.end(
+                JSON.stringify({
+                  error: payload.message ?? "NewsAPI request failed",
+                  articles: [],
+                }),
+              );
               return;
             }
 
             res.end(JSON.stringify({ articles: payload.articles ?? [] }));
           } catch {
             res.statusCode = 502;
-            res.end(JSON.stringify({ error: 'Could not reach NewsAPI', articles: [] }));
+            res.end(
+              JSON.stringify({
+                error: "Could not reach NewsAPI",
+                articles: [],
+              }),
+            );
           }
         });
 
-        server.middlewares.use('/api/generate-quiz', async (req, res) => {
-          res.setHeader('Content-Type', 'application/json');
+        server.middlewares.use("/api/generate-quiz", async (req, res) => {
+          res.setHeader("Content-Type", "application/json");
 
           try {
             const body = await readJsonBody(req);
             const articles = normalizeArticlesForLLM(body.articles ?? []);
-            const quiz = await generateQuizWithLLM(articles, env.DEEPSEEK_API_KEY);
+            const quiz = await generateQuizWithLLM(
+              articles,
+              env.DEEPSEEK_API_KEY,
+            );
             res.end(JSON.stringify({ quiz }));
           } catch {
             res.statusCode = 400;
-            res.end(JSON.stringify({ error: 'Could not generate quiz', quiz: [] }));
+            res.end(
+              JSON.stringify({ error: "Could not generate quiz", quiz: [] }),
+            );
           }
         });
-      }
+      },
     };
   }
 
   return {
-    plugins: [react(), makeNewsApiMiddleware()]
+    plugins: [react(), makeNewsApiMiddleware()],
   };
 });

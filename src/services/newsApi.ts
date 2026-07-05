@@ -1,4 +1,4 @@
-import type { NewsArticle } from '../types/news';
+import type { NewsArticle } from "../types/news";
 
 type NewsApiResponse = {
   articles?: Array<{
@@ -13,14 +13,14 @@ type NewsApiResponse = {
 };
 
 export async function fetchDailyNews(country?: string): Promise<NewsArticle[]> {
-  const url = new URL('/api/news', window.location.origin);
+  const url = new URL("/api/news", window.location.origin);
   if (country) {
-    url.searchParams.set('country', country);
+    url.searchParams.set("country", country);
   }
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error('NewsAPI briefing desk dropped its sandwich.');
+    throw new Error("NewsAPI briefing desk dropped its sandwich.");
   }
 
   const payload = (await response.json()) as NewsApiResponse;
@@ -28,11 +28,13 @@ export async function fetchDailyNews(country?: string): Promise<NewsArticle[]> {
   return (payload.articles ?? [])
     .filter((article) => article.title && article.url)
     .map((article) => ({
-      title: article.title ?? 'Untitled news object',
-      description: article.description ?? 'The details are developing, probably while someone says "sources indicate".',
-      url: article.url ?? '#',
+      title: article.title ?? "Untitled news object",
+      description:
+        article.description ??
+        'The details are developing, probably while someone says "sources indicate".',
+      url: article.url ?? "#",
       imageUrl: article.urlToImage,
-      source: article.source?.name ?? 'Mystery Desk',
-      publishedAt: article.publishedAt
+      source: article.source?.name ?? "Mystery Desk",
+      publishedAt: article.publishedAt,
     }));
 }
