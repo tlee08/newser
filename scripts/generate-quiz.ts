@@ -1,11 +1,42 @@
 import { existsSync, readFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import "dotenv/config";
 import {
-  loadEnvFile,
-  saveCollectedData,
   type CollectedDataFile,
   type QuizQuestionOutput,
 } from "../lib/pipeline";
+
+const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
+
+async function saveCollectedData(
+  rawArticles: any[],
+  quizQuestions: QuizQuestionOutput[],
+): Promise<string> {
+  const now = new Date();
+  const stamp = now.toISOString().replace(/[:.]/g, "-");
+  await mkdir(DATA_DIR, { recursive: true });
+
+  const data: CollectedDataFile = {
+    timestamp: now.toISOString(),
+    source: { country: null, articleCount: rawArticles.length },
+    rawArticles: rawArticles.map((a: any) => ({
+      id: a.id ?? "?",
+      topic: a.topic ?? "general",
+      title: a.title ?? "Untitled",
+      description: a.description ?? "",
+      url: a.url ?? "#",
+      source: typeof a.source === "object" ? (a.source?.name ?? "Unknown") : String(a.source ?? "Unknown"),
+      imageUrl: a.imageUrl ?? a.urlToImage,
+      publishedAt: a.publishedAt,
+    })),
+    quizQuestions: quizQuestions.map((q) => ({ ...q, articleRef: q.articleRef ?? "" })) as CollectedDataFile["quizQuestions"],
+  };
+
+  const filePath = join(DATA_DIR, `${stamp}.json`);
+  await writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
+  return filePath;
+}
 
 const USAGE = `Usage:
   pnpm generate-quiz --fresh
@@ -26,8 +57,6 @@ const TOPICS = [
   { topic: "sports", category: "sports" },
   { topic: "science", category: "science" },
 ];
-
-const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
 
 // ── NewsAPI ──
 
@@ -355,7 +384,6 @@ function parseArgs(
 }
 
 async function main() {
-  loadEnvFile();
   const args = parseArgs(process.argv);
   if (!args) {
     console.log(USAGE);

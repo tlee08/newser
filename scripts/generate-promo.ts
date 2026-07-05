@@ -2,8 +2,8 @@ import { existsSync, readdirSync } from "node:fs";
 import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { chromium } from "playwright";
+import "dotenv/config";
 import {
-  loadEnvFile,
   type CollectedDataFile,
   type QuizQuestionOutput,
 } from "../lib/pipeline";
@@ -32,8 +32,6 @@ function latestFile(): string | null {
 // ── args ──
 
 async function main() {
-  loadEnvFile();
-
   const fileArg = process.argv.findIndex((a) => a === "--file");
   const filename =
     fileArg !== -1 && fileArg + 1 < process.argv.length
