@@ -106,9 +106,11 @@ RULES:
 Format:
 [{
   "prompt": "Funny question text",
-  "correctAnswer": "The accurate fact",
-  "options": ["Correct answer text", "Far-fetched decoy", "Plausible decoy", "Adapted-headline decoy"],
-  "summary": "One sentence factual summary"
+  "summary": "One sentence factual summary",
+  "correctAnswer": "Correct answer text",
+  "decoy1": "Far-fetched decoy",
+  "decoy2": "Plausible decoy",
+  "decoy3": "Adapted-headline decoy"
 }]`;
 
 function shuffle(options: string[]): { options: string[]; idx: number } {
@@ -165,20 +167,17 @@ async function generateQuiz(
     throw new Error("DeepSeek returned empty response");
 
   return parsed.slice(0, 5).map((q: any, i: number) => {
-    if (!Array.isArray(q.options) || q.options.length !== 4) {
-      throw new Error(
-        `DeepSeek returned ${q.options?.length ?? 0} options (expected 4)`,
-      );
-    }
     const answer: string = q.correctAnswer ?? "";
-    if (!q.options.includes(answer)) {
+    const decoys = [q.decoy1, q.decoy2, q.decoy3].filter(Boolean) as string[];
+    const allOptions = [answer, ...decoys];
+    if (allOptions.length < 4) {
       throw new Error(
-        `DeepSeek correctAnswer "${answer}" not found in options`,
+        `DeepSeek returned ${allOptions.length} options (expected 4)`,
       );
     }
-    // Move correct answer to front, then shuffle
-    const ordered = [answer, ...q.options.filter((o: string) => o !== answer)];
-    const { options, idx } = shuffle(ordered);
+    // Shuffle — correct answer goes to a random position
+    const { options, idx } = shuffle(allOptions);
+
     return {
       id: "",
       topic: "",

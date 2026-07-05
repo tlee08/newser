@@ -12,7 +12,6 @@ import {
   Title,
 } from "@mantine/core";
 import { ExternalLink, RotateCcw, Sparkles } from "lucide-react";
-import { useEffect, useRef } from "react";
 import type { QuizQuestion } from "../types/news";
 
 type QuestionCardProps = {
@@ -41,14 +40,6 @@ export function QuestionCard({
   onRestart,
 }: QuestionCardProps) {
   const isFinal = questionNumber === totalQuestions;
-  const firstOptionRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!answered && firstOptionRef.current) {
-      const timer = setTimeout(() => firstOptionRef.current?.focus(), 80);
-      return () => clearTimeout(timer);
-    }
-  }, [question.id, answered]);
 
   return (
     <Card className="quiz-card" shadow="xl" padding="xl">
@@ -96,7 +87,6 @@ export function QuestionCard({
                 answered &&
                 selectedAnswer === option &&
                 index !== question.correctAnswerIndex;
-              const isFirst = index === 0;
               return (
                 <Radio.Card
                   className="answer-option"
@@ -105,7 +95,6 @@ export function QuestionCard({
                   value={option}
                   key={option}
                   disabled={answered}
-                  ref={isFirst ? firstOptionRef : undefined}
                 >
                   <Group wrap="nowrap" align="flex-start">
                     <Radio.Indicator />

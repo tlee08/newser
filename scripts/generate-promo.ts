@@ -131,9 +131,16 @@ body.fonts-loaded{opacity:1;transition:opacity .2s}
 .answer-highlight{padding:16px 20px;border:2px solid #1f1b18;border-radius:6px;background:#c3fae8;font-weight:800}
 .summary{padding:18px;border:2px solid #1f1b18;border-radius:6px;background:#f1f3f5;font-weight:500}
 .source-url{font-size:7px;color:#6b6b6b;word-break:break-all;margin-top:4px}
+.masthead{font-family:"Space Grotesk",sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.16em}
+.stamp{border:3px solid #c91a1a;color:#c91a1a;font-family:"Space Grotesk",sans-serif;font-weight:900;font-size:24px;text-transform:uppercase;padding:8px 16px;border-radius:4px;transform:rotate(-12deg);opacity:.85}
+.option-num{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:900;margin-right:10px;flex-shrink:0}
+.card-image-overlay{position:relative;border-radius:6px;overflow:hidden;margin-bottom:20px}
+.card-image-overlay img{display:block;width:100%;object-fit:cover}
+.overlay-text{position:absolute;bottom:0;left:0;right:0;padding:28px 32px;background:linear-gradient(transparent,rgba(31,27,24,.85))}
+.dossier-card{background:#fdfaf0;background-image:repeating-linear-gradient(-35deg,transparent,transparent 18px,rgba(201,26,26,.04) 18px,rgba(201,26,26,.04) 20px)}
 `;
 
-type Style = "classic" | "hero";
+type Style = "classic" | "hero" | "splash" | "trivia" | "minimal" | "dossier";
 
 const STYLES: Record<Style, string> = {
   classic: `
@@ -153,20 +160,83 @@ const STYLES: Record<Style, string> = {
     .options,.answer-block{gap:10px;display:flex;flex-direction:column}
     .option{font-size:19px}.answer-highlight{font-size:21px}.summary{font-size:17px}
   `,
+  splash: `
+    .card-wrap{gap:0;width:920px;padding:20px 32px 32px}
+    .masthead{font-size:22px;margin-bottom:16px;align-self:flex-start}
+    .hero-title-text{display:none}.tagline{display:none}.icon-wrap{display:none}.kicker{display:none}
+    .card{border:3px solid #1f1b18;border-radius:8px;box-shadow:8px 8px 0 #1f1b18;padding:0;overflow:hidden}
+    .card-image-overlay img{max-height:420px}
+    .overlay-text .prompt{font-size:38px;font-weight:900;line-height:1.1;color:#fff;text-shadow:2px 2px 0 rgba(31,27,24,.5);margin-bottom:0}
+    .prompt-plain{font-size:34px;font-weight:900;line-height:1.15;margin-bottom:22px;padding:36px 36px 0}
+    .options-plain,.answer-block-plain{padding:0 36px 36px}
+    .options,.answer-block{gap:8px;display:flex;flex-direction:column}
+    .option{font-size:18px;padding:12px 16px}.answer-highlight{font-size:20px}.summary{font-size:17px}
+  `,
+  trivia: `
+    .card-wrap{gap:18px;width:820px;padding:30px}
+    .icon-wrap{color:#1f1b18}.kicker{font-size:28px}
+    .hero-title-text{display:none}.tagline{display:none}
+    .card{padding:38px}
+    .prompt{font-size:34px;font-weight:900;line-height:1.15;margin-bottom:24px}
+    .prompt::before{content:"? ";color:#ff6b9c}
+    .card-image img{max-height:260px}
+    .options,.answer-block{gap:8px;display:flex;flex-direction:column}
+    .option{font-size:19px;padding:14px 18px;border-left-width:5px}
+    .option:nth-child(1){border-left-color:#ff6b9c}
+    .option:nth-child(2){border-left-color:#38d9a9}
+    .option:nth-child(3){border-left-color:#f7e14b}
+    .option:nth-child(4){border-left-color:#1f1b18}
+    .answer-highlight{font-size:21px;border-left:5px solid #38d9a9}
+    .summary{font-size:17px}
+  `,
+  minimal: `
+    .card-wrap{gap:28px;width:760px;padding:40px}
+    .icon-wrap{color:#1f1b18}.kicker{font-size:22px;align-self:flex-end}
+    .hero-title-text{display:none}.tagline{display:none}
+    .card{border:1px solid #e0ddd6;border-radius:6px;box-shadow:none;padding:48px 56px}
+    .prompt{font-size:40px;font-weight:800;line-height:1.25;margin-bottom:32px;color:#2a2a2a}
+    .card-image{border-radius:6px;overflow:hidden;margin-bottom:28px}
+    .card-image img{max-height:320px;border:none;border-radius:6px}
+    .options,.answer-block{gap:14px;display:flex;flex-direction:column}
+    .option{font-size:18px;padding:16px 20px;border:1px solid #e0ddd6;font-weight:600}
+    .answer-highlight{font-size:20px;border:1px solid #c3fae8}.summary{font-size:17px}
+  `,
+  dossier: `
+    .card-wrap{gap:16px;width:860px;padding:28px}
+    .icon-wrap{color:#1f1b18}.kicker{font-size:24px;align-self:flex-start}
+    .hero-title-text{display:none}.tagline{display:none}
+    .card{border:3px solid #1f1b18;border-radius:6px;box-shadow:6px 6px 0 #1f1b18;padding:40px}
+    .dossier-card .prompt{font-size:32px;font-weight:900;line-height:1.2;margin-bottom:20px}
+    .card-image img{max-height:250px}
+    .options,.answer-block{gap:8px;display:flex;flex-direction:column}
+    .option{font-size:18px;padding:12px 16px;font-family:"Courier New",monospace;border-style:dashed}
+    .answer-highlight{font-size:20px;border-left:4px solid #c91a1a}
+    .summary{font-size:17px}
+  `,
 };
 
 function header(style: Style): string {
-  if (style === "hero") {
-    return `<div class="icon-wrap">${ICON_SVG(40)}</div>
+  switch (style) {
+    case "hero":
+      return `<div class="icon-wrap">${ICON_SVG(40)}</div>
 <div class="kicker">Newser</div>
 <div class="hero-title-text">Daily Briefing Brawl</div>
 <div class="tagline">Five headlines enter. One reader leaves mildly informed and overconfident.</div>`;
-  }
-  return `<div class="icon-wrap">${ICON_SVG(36)}</div>
+    case "splash":
+      return `<div class="masthead">Newser</div>`;
+    case "minimal":
+      return "";
+    default:
+      return `<div class="icon-wrap">${ICON_SVG(36)}</div>
 <div class="kicker">Newser</div>`;
+  }
 }
 
 function questionHtml(q: QuizQuestionOutput, style: Style): string {
+  if (style === "splash") return splashQuestionHtml(q);
+  if (style === "trivia") return triviaQuestionHtml(q);
+  if (style === "dossier") return dossierQuestionHtml(q);
+
   const imgBlock = q.imageUrl
     ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
     : "";
@@ -179,7 +249,49 @@ function questionHtml(q: QuizQuestionOutput, style: Style): string {
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
 }
 
+function splashQuestionHtml(q: QuizQuestionOutput): string {
+  if (q.imageUrl) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="card-image-overlay"><img src="${esc(q.imageUrl)}" alt="" /><div class="overlay-text"><div class="prompt">${esc(q.prompt)}</div></div></div><div class="options-plain"><div class="options">${q.options.map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`).join("")}</div></div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+  }
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="prompt-plain">${esc(q.prompt)}</div><div class="options-plain"><div class="options">${q.options.map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`).join("")}</div></div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
+function triviaQuestionHtml(q: QuizQuestionOutput): string {
+  const nums = ["①", "②", "③", "④"];
+  const imgBlock = q.imageUrl
+    ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
+    : "";
+  const opts = q.options
+    .map((o, i) => `<div class="option"><span class="option-num">${nums[i]}</span>${esc(o)}</div>`)
+    .join("");
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.trivia}</style></head><body>
+<div class="card-wrap">${header("trivia")}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div><div class="options">${opts}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
+function dossierQuestionHtml(q: QuizQuestionOutput): string {
+  const imgBlock = q.imageUrl
+    ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
+    : "";
+  const opts = q.options
+    .map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`)
+    .join("");
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.dossier}</style></head><body>
+<div class="card-wrap">${header("dossier")}<div class="card dossier-card"><div class="stamp">Confidential</div>${imgBlock}<div class="prompt">${esc(q.prompt)}</div><div class="options">${opts}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
 function answerHtml(q: QuizQuestionOutput, style: Style): string {
+  if (style === "splash") return splashAnswerHtml(q);
+  if (style === "trivia") return triviaAnswerHtml(q);
+  if (style === "dossier") return dossierAnswerHtml(q);
+
   const imgBlock = q.imageUrl
     ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
     : "";
@@ -196,12 +308,48 @@ function answerHtml(q: QuizQuestionOutput, style: Style): string {
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
 }
 
+function splashAnswerHtml(q: QuizQuestionOutput): string {
+  const srcUrl = q.articleUrl ? `<div class="source-url">${esc(q.articleUrl)}</div>` : "";
+  const imgUrl = q.imageUrl ? `<div class="source-url">${esc(q.imageUrl)}</div>` : "";
+
+  if (q.imageUrl) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="card-image-overlay"><img src="${esc(q.imageUrl)}" alt="" /><div class="overlay-text"><div class="prompt">${esc(q.prompt)}</div></div></div><div class="answer-block-plain"><div class="answer-highlight">${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+  }
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="prompt-plain">${esc(q.prompt)}</div><div class="answer-block-plain"><div class="answer-highlight">${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
+function triviaAnswerHtml(q: QuizQuestionOutput): string {
+  const imgBlock = q.imageUrl ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>` : "";
+  const srcUrl = q.articleUrl ? `<div class="source-url">${esc(q.articleUrl)}</div>` : "";
+  const imgUrl = q.imageUrl ? `<div class="source-url">${esc(q.imageUrl)}</div>` : "";
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.trivia}</style></head><body>
+<div class="card-wrap">${header("trivia")}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div>
+<div class="answer-block"><div class="answer-highlight">${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
+function dossierAnswerHtml(q: QuizQuestionOutput): string {
+  const imgBlock = q.imageUrl ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>` : "";
+  const srcUrl = q.articleUrl ? `<div class="source-url">${esc(q.articleUrl)}</div>` : "";
+  const imgUrl = q.imageUrl ? `<div class="source-url">${esc(q.imageUrl)}</div>` : "";
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.dossier}</style></head><body>
+<div class="card-wrap">${header("dossier")}<div class="card dossier-card"><div class="stamp">Declassified</div>${imgBlock}<div class="prompt">${esc(q.prompt)}</div>
+<div class="answer-block"><div class="answer-highlight">${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
 async function renderOne(
   browser: Awaited<ReturnType<typeof chromium.launch>>,
   question: QuizQuestionOutput,
   outputDir: string,
 ): Promise<string[]> {
-  const styles: Style[] = ["classic", "hero"];
+  const styles: Style[] = ["classic", "hero", "splash", "trivia", "minimal", "dossier"];
   const paths: string[] = [];
   const qDir = join(outputDir, question.id);
 
