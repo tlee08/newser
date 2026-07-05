@@ -2,269 +2,96 @@
 
 A funny daily news quiz app. Five headlines enter, one reader leaves mildly informed and overconfident.
 
----
+## How it works
 
-## Architecture Overview
+1. **`pnpm generate-quiz --fresh`** — fetches news per topic from NewsAPI, generates quiz questions via DeepSeek, saves everything to `resources/collected_data/<timestamp>.json`
+2. **`pnpm dev`** (or `pnpm start`) — reads the latest collected data, serves per-topic quizzes. Each topic (general, tech, politics, etc.) has its own independent 5-question quiz. Progress persists per topic while switching between them.
+3. **`pnpm generate-promo`** — reads collected data, renders styled PNG quiz-card images for social media using Playwright
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                      Browser (React SPA)                  │
-│                                                          │
-│  ┌─────────┐   ┌──────────────┐   ┌───────────────────┐  │
-│  │ newsApi │──▶│  App.tsx     │──▶│   UI Components   │  │
-│  │ llmQuiz │   │  state machine│   │ QuestionCard      │  │
-│  │ streaks │   │  useMemo/use-│   │ ScoreScreen       │  │
-│  │quizBldr │   │  Callback    │   │ ...               │  │
-│  └────┬────┘   └──────┬───────┘   └───────────────────┘  │
-│       │               │                                   │
-└───────┼───────────────┼───────────────────────────────────┘
-        │ fetch()       │
-        ▼               ▼
-┌──────────────────────────────────────────────────────────┐
-│              Server (Vite middleware / server.ts)            │
-│                                                          │
-│  GET  /api/news          ───▶  NewsAPI top-headlines     │
-│  POST /api/generate-quiz ───▶  DeepSeek chat completions │
-│                                                          │
-│  Keys live only in process.env — never sent to browser.   │
-└──────────────────────────────────────────────────────────┘
-```
-
----
-
-## Data Flow
-
-### 1. Retrieve Data (NewsAPI)
-
-The app fetches live headlines from NewsAPI through a **server-side proxy** so the API key never reaches the browser.
-
-```
-Browser                    Server (dev/prod)              NewsAPI
-───────                    ─────────────────              ───────
-fetchDailyNews()
-  → GET /api/news
-  (optional ?country=us)   → env.NEWSAPI_KEY              GET top-headlines
-                              country, language, pageSize
-                            ← { articles: [...] }     ←  { articles: [...] }
-  ← NewsArticle[]
-```
-
-- **Dev**: Handled by a Vite plugin (`vite.config.ts`) that adds Express-style middleware.
-- **Prod**: Handled by `server.ts`, a zero-dependency Node HTTP server. Serves static files from `dist/` and proxies `/api/*`.
-- If no key is present, returns an empty list and the app falls back to 5 hardcoded demo articles.
-
-### 2. Generate Questions (Rule-Based)
-
-The rule-based engine in `src/services/quizBuilder.ts` turns headlines into a 5-question quiz **without an LLM**:
-
-```
-Articles → buildDailyQuiz(articles, seed?)
-           │
-           ├─ detectCategory(article)   keyword-matched → politics|tech|sports|science|world|business|general
-           ├─ compactAnswer(title)      strip "- Source" / "| Recap" suffixes
-           ├─ pickPrompt(cat, seed)     picks from ~100 category-aware prompt templates
-           └─ seededShuffle(options)    Fisher-Yates with daily seed → same order all day
-
-   Output: QuizQuestion[] (5 items, 4 options each)
-```
-
-Question structure:
-
-- **Prompt**: Humorous, category-matched (e.g., "What political saga is unfolding in this headline?")
-- **Options**: Correct answer (compact headline) + 2 real headline decoys + 1 absurd decoy — shuffles deterministically per day
-- **Summary**: The article description, kept factual
-- **Source link**: Original article URL
-
-### 3. Generate Questions (LLM / DeepSeek)
-
-When a `DEEPSEEK_API_KEY` is available, the app tries to use DeepSeek to generate funnier, more creative questions:
-
-```
-Browser                        Server                      DeepSeek
-───────                        ──────                      ────────
-generateLLMQuiz(articles)
-  → POST /api/generate-quiz
-    { articles: [...] }        → env.DEEPSEEK_API_KEY       chat/completions
-                                 system prompt:
-                                 "You are a witty news      deepseek-chat
-                                  quiz generator..."        max_tokens=2000
-                                 articles as user message   temperature=0.9
-                               ← { quiz: [...] }        ←  JSON array
-  ← QuizQuestion[]
-```
-
-- The server sends a detailed system prompt instructing DeepSeek to generate 5 questions with factual answers and absurd decoys.
-- If the LLM call fails or returns malformed JSON, the function returns `[]` and the app silently falls back to the rule-based engine.
-- Keys are server-side only — the browser never sees them.
-
-### 4. Persist Data
-
-Quiz data is saved server-side for reproduction and promo generation:
-
-```
-POST /api/save-collected-data → resources/collected_data/<timestamp>.json
-```
-
-Each snapshot contains:
-
-- All raw NewsAPI articles with explicit `id` fields (`a-0`, `a-1`, …)
-- Quiz questions with `articleRef` foreign keys mapping back to source articles
-- Article `imageUrl` fields for reproduction in promo images
-
-### 5. Store Data
-
-| Data                     | Storage                                  | Lifetime                                 |
-| ------------------------ | ---------------------------------------- | ---------------------------------------- |
-| News articles            | React state (`useState`)                 | Per session (cleared on refresh/restart) |
-| Quiz questions           | React state + derived (`useMemo`)        | Per session                              |
-| Current streak           | `localStorage` (`newser-streak-count`)   | Persistent across sessions               |
-| Last play date           | `localStorage` (`newser-last-play-date`) | Persistent                               |
-| API keys                 | `process.env` (server-side only)         | Configured at deploy                     |
-| Category / country prefs | React state                              | Per session                              |
-
-**Streak logic** (`src/services/streaks.ts`):
-
-- Play today → +1 if yesterday was played, else reset to 1
-- Same-day replay → no change
-- Uses UTC dates so streaks work across timezones
-
-### 6. Present Data (UI)
-
-The app is a **finite state machine** with three stages:
-
-```
-  loading  ──→  playing  ──→  score
-    │              │             │
-    │  [fetch +    │  [answer    │  [verdict +
-    │   generate]  │   5 q's]    │   share]
-```
-
-**Components:**
-
-- `App.tsx` — Orchestrator. Holds all state, computes derived values, manages the stage machine.
-- `QuestionCard.tsx` — Single question view. Shows image/prompt, 4 radio-card options, progress bar, summary after answering, source link. Auto-focuses first option for keyboard accessibility.
-- `ScoreScreen.tsx` — Final results. Trophy icon, score fraction, contextual verdict, streak badge, share button (Web Share API with clipboard fallback).
-
-**Styling** (`src/styles.css`):
-
-- "Tabloid trivia arcade" aesthetic — yellow background, punchy black borders, offset shadows, Space Grotesk headings.
-- Pink accent color for interactive elements.
-- Responsive at 640px breakpoint.
-
----
-
-## Project Structure
+## Project structure
 
 ```
 newser/
 ├── src/
-│   ├── App.tsx                    # State machine, orchestrator
-│   ├── main.tsx                   # Entry point, MantineProvider
-│   ├── styles.css                 # Tabloid visual design
-│   ├── types/
-│   │   └── news.ts                # NewsArticle, QuizQuestion types
+│   ├── App.tsx                    # Topic tabs, quiz flow
+│   ├── styles.css                 # Tabloid-trivia visual design
+│   ├── types/news.ts              # Shared types
 │   ├── services/
-│   │   ├── newsApi.ts             # fetchDailyNews() → GET /api/news
-│   │   ├── quizBuilder.ts         # Rule-based quiz generation
-│   │   ├── llmQuiz.ts             # DeepSeek quiz generation client
-│   │   └── streaks.ts             # localStorage streak tracking + sharing
+│   │   ├── quizStore.ts           # Zustand: per-topic state
+│   │   └── streaks.ts             # localStorage streak + sharing
 │   └── components/
-│       ├── QuestionCard.tsx        # Single quiz question UI
-│       └── ScoreScreen.tsx        # Final score + share UI
+│       ├── QuestionCard.tsx        # Single question UI
+│       └── ScoreScreen.tsx        # Final score + share
 ├── lib/
-│   └── pipeline.ts                # Shared: NewsAPI fetch, DeepSeek, data persistence
+│   └── pipeline.ts                # Types, data persistence, quiz file loading
 ├── scripts/
-│   ├── generate-promo.ts          # CLI entry: pnpm generate-promo
-│   └── render-promo-images.ts     # Playwright headless → PNG quiz cards
+│   ├── generate-quiz.ts           # CLI: NewsAPI + DeepSeek → collected_data
+│   ├── generate-promo.ts          # CLI: Playwright → PNG promo images
+│   └── finalise-promos.sh         # Copy classic promos to flat folder for review
 ├── server.ts                      # Production Node server
-├── vite.config.ts                 # Dev server + API middleware
+├── vite.config.ts                 # Dev server + /api/quizzes endpoint
 ├── resources/                     # gitignored
-│   ├── collected_data/            # Timestamped pipeline snapshots
-│   └── promotion_images/          # Generated social media PNGs
-├── public/
-│   └── news-placeholder.svg       # Fallback image
-├── docs/
-│   ├── agent-loop/                # Agent instructions + backlog
-│   └── superpowers/               # Design specs + plans
-└── package.json                   # pnpm, React 19, Mantine 9, Vite 7
+│   ├── collected_data/            # Timestamped quiz snapshots
+│   ├── promotion_images/          # Generated promo PNGs (nested)
+│   └── promotion_images_finalised/# Flattened classic images for review
+└── docs/                          # Agent loop + specs + plans
 ```
-
----
 
 ## Commands
 
 ```bash
-pnpm install            # Install dependencies
-pnpm dev                # Start Vite dev server (loads latest collected_data, fallback fresh)
-pnpm build              # Type-check + bundle for production
-pnpm start              # Run production server (tsx server.ts)
-pnpm test               # Run vitest (37 tests)
-pnpm typecheck          # TypeScript check only
-pnpm generate-quiz      # Fetch news + generate + save to collected_data (once-off)
-pnpm generate-promo     # Generate social media promo images
+pnpm dev                # Dev server (loads latest collected_data)
+pnpm build              # Type-check + bundle
+pnpm start              # Production server
+pnpm test               # Vitest
+pnpm typecheck          # TypeScript check
+pnpm lint               # ESLint
+
+pnpm generate-quiz --fresh                         # Fetch + generate + save
+pnpm generate-quiz --file <name>                   # Regenerate from existing file
+
+pnpm generate-promo                                # Render promos from latest data
+pnpm generate-promo --file <name>                  # Render from specific file
+
+bash scripts/finalise-promos.sh                    # Flatten classic images for review
 ```
 
-### `pnpm dev`
+### Quiz generation
 
-By default loads the latest quiz data from `resources/collected_data/`. Override with `QUIZ_SOURCE`:
+`pnpm generate-quiz --fresh` fetches 20 articles per topic from NewsAPI, batches them into groups of 5, generates questions via DeepSeek, and saves to `resources/collected_data/`. Each article and question carries a `topic` field and explicit `articleRef` foreign keys.
 
-```bash
-QUIZ_SOURCE=fresh pnpm dev              # Force fresh generation
-QUIZ_SOURCE=2026-07-05.json pnpm dev    # Use specific collected data file
-```
+`--file` regenerates questions from existing collected data.
 
-### `pnpm generate-quiz`
+### Promo images
 
-Pre-generates quiz data once (fetches news, runs DeepSeek, categorizes, saves):
+`pnpm generate-promo` renders 6 styled PNGs per question (3 styles × 2 variants):
 
-```bash
-pnpm generate-quiz --fresh
-pnpm generate-quiz --file 2026-07-05T12-34-56.json
-```
+| Style | Vibe |
+|-------|------|
+| `classic` | Icon + "Newser" + "Daily Briefing Brawl" + card |
+| `hero` | Same + "Five headlines enter..." tagline |
+| `splash` | Magazine cover — image with overlaid prompt |
 
-### `pnpm generate-promo`
+Each style produces a `-question` and `-answer` variant. The answer includes the correct answer (highlighted green), summary, and source URLs.
 
-Generates styled PNG quiz-card images from previously collected quiz data:
+Run `bash scripts/finalise-promos.sh` to copy `classic-question.png` and `classic-answer.png` into a flat `resources/promotion_images_finalised/` folder for quick scanning.
 
-```bash
-pnpm generate-promo --file 2026-07-05T12-34-56.json
-```
-
-Reads a saved pipeline snapshot from `resources/collected_data/`, renders all questions, and saves to `resources/promotion_images/<filename>/<question-id>/`.
-
-**4 images per question (2 styles × 2 variants):**
-
-| File | Content |
-|------|---------|
-| `classic-square.png` | Icon + "Newser" + question + 4 options |
-| `classic-answer.png` | Same header + correct answer (green) + summary + source link |
-| `hero-square.png` | Full header + "Daily Briefing Brawl" + question + options |
-| `hero-answer.png` | Full header + correct answer + summary + source link |
-
-Use `pnpm generate-quiz` to create the collected data first. Requires Playwright.
-
----
-
-## Environment Variables
+## Environment
 
 Create a `.env` file:
 
 ```bash
-NEWSAPI_KEY=your_newsapi_key_here
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
+NEWSAPI_KEY=your_key
+DEEPSEEK_API_KEY=your_key
 ```
 
-- Without `NEWSAPI_KEY`: app uses 5 hardcoded demo headlines.
-- Without `DEEPSEEK_API_KEY`: app uses the rule-based quiz generator.
-- With both: full live news quiz powered by LLM-generated questions.
+Both required for `generate-quiz`. The dev server works without them if collected data already exists.
 
-For production deploys (Railway, Render, Fly.io), set these as environment variables. The build command is `pnpm build` and the start command is `pnpm start`.
+`QUIZ_SOURCE` env var overrides which collected data file to load (e.g. `QUIZ_SOURCE=2026-07-05.json pnpm dev`).
 
----
+## Factuality rules
 
-## Factuality Rules
-
-- Event summaries must be accurate to the source article.
-- Decoy answers must not make false factual claims about real people.
-- Source links always point to the original article.
-- Humor is reserved for prompts, decoys, UI labels, loading states, and score messages — never the factual summary.
+- Summaries must be accurate to the source article
+- Decoy answers must not make false claims about real people
+- Source links always point to the original article
+- Humor is for prompts, decoys, and UI — never the factual summary
