@@ -3,12 +3,7 @@ name: Daily Quiz Generation & Deploy
 on:
   schedule:
     - cron: "0 6 * * *" # Daily at 6 AM UTC
-  workflow_dispatch:
-    inputs:
-      generate-fresh:
-        description: "Fetch news from NewsAPI and generate new quiz data"
-        type: boolean
-        default: true
+  workflow_dispatch: # Manual trigger from GitHub UI
 
 jobs:
   generate-and-deploy:
@@ -34,7 +29,6 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Generate fresh quiz data
-        if: ${{ github.event_name == 'schedule' || github.event.inputs.generate-fresh == 'true' }}
         run: pnpm generate-quiz --fresh
         env:
           NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
