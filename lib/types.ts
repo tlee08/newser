@@ -1,3 +1,14 @@
+export type RawArticle = {
+  id: string;
+  topic: string;
+  title: string;
+  description?: string;
+  url: string;
+  urlToImage?: string;
+  source?: string | { name?: string };
+  publishedAt?: string;
+};
+
 export type QuizQuestionOutput = {
   id: string;
   topic: string;

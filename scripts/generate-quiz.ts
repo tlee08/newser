@@ -5,25 +5,13 @@ import "dotenv/config";
 import {
   type CollectedDataFile,
   type QuizQuestionOutput,
+  type RawArticle,
 } from "../lib/types";
 
 const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
 
-type RawArticle = {
-  id: string;
-  topic: string;
-  title: string;
-  description?: string;
-  url: string;
-  urlToImage?: string;
-  source?: { name?: string } | string;
-  publishedAt?: string;
-};
-
-type SavedArticle = CollectedDataFile["rawArticles"][number];
-
 async function saveCollectedData(
-  rawArticles: (RawArticle | SavedArticle)[],
+  rawArticles: RawArticle[],
   quizQuestions: QuizQuestionOutput[],
 ): Promise<string> {
   const now = new Date();
@@ -33,14 +21,14 @@ async function saveCollectedData(
   const data: CollectedDataFile = {
     timestamp: now.toISOString(),
     source: { country: null, articleCount: rawArticles.length },
-    rawArticles: rawArticles.map((a): SavedArticle => ({
+    rawArticles: rawArticles.map((a) => ({
       id: a.id,
-      topic: "topic" in a ? (a.topic ?? "general") : "general",
+      topic: a.topic,
       title: a.title,
       description: a.description ?? "",
       url: a.url,
       source: typeof a.source === "object" && a.source !== null ? (a.source.name ?? "Unknown") : String(a.source ?? "Unknown"),
-      imageUrl: "urlToImage" in a ? a.urlToImage : (a as any).imageUrl,
+      imageUrl: a.urlToImage ?? (a as any).imageUrl,
       publishedAt: a.publishedAt,
     })),
     quizQuestions: quizQuestions.map((q) => ({ ...q, articleRef: q.articleRef ?? "" })) as CollectedDataFile["quizQuestions"],
