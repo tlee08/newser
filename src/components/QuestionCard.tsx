@@ -42,13 +42,13 @@ export function QuestionCard({
   const isFinal = questionNumber === totalQuestions;
 
   return (
-    <Card className="quiz-card" shadow="xl" padding="xl">
-      <Stack gap="lg">
+    <Card className="quiz-card" shadow="xl" padding="sm">
+      <Stack gap="sm">
         <Group justify="space-between" align="center">
-          <Badge color="dark" variant="filled">
+          <Badge color="dark" variant="filled" size="sm">
             Question {questionNumber} / {totalQuestions}
           </Badge>
-          <Badge color="pink" leftSection={<Sparkles size={14} />}>
+          <Badge color="pink" leftSection={<Sparkles size={12} />} size="sm">
             Score {score}
           </Badge>
         </Group>
@@ -57,7 +57,7 @@ export function QuestionCard({
           value={(questionNumber / totalQuestions) * 100}
           color="pink"
           radius="xs"
-          size="md"
+          size="sm"
         />
 
         {question.imageUrl ? (
@@ -81,11 +81,11 @@ export function QuestionCard({
           <Text size="sm" fw={700} c="pink.7">
             {question.source}
           </Text>
-          <Title order={2}>{question.prompt}</Title>
+          <Title order={3}>{question.prompt}</Title>
         </Stack>
 
         <Radio.Group value={selectedAnswer} onChange={onSelect}>
-          <Stack gap="sm">
+          <Stack gap="xs">
             {question.options.map((option, index) => {
               const isCorrect = answered && index === question.correctAnswerIndex;
               const isWrongPick =
@@ -131,17 +131,18 @@ export function QuestionCard({
           <Button
             variant="subtle"
             color="dark"
-            leftSection={<RotateCcw size={18} />}
+            size="sm"
+            leftSection={<RotateCcw size={15} />}
             onClick={onRestart}
           >
             Restart
           </Button>
           {answered ? (
-            <Button color="dark" onClick={onNext}>
+            <Button color="dark" size="sm" onClick={onNext}>
               {isFinal ? "Show my score" : "Next headline"}
             </Button>
           ) : (
-            <Button color="pink" onClick={onSubmit} disabled={!selectedAnswer}>
+            <Button color="pink" size="sm" onClick={onSubmit} disabled={!selectedAnswer}>
               Lock in the take
             </Button>
           )}

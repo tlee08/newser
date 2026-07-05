@@ -23,15 +23,15 @@ export function ScoreScreen({
         : "A humble score, but the news cycle is famously slippery.";
 
   return (
-    <Card className="quiz-card score-card" shadow="xl" padding="xl">
-      <Stack align="center" gap="lg">
+    <Card className="quiz-card score-card" shadow="xl" padding="sm">
+      <Stack align="center" gap="sm">
         <div className="trophy-wrap">
-          <Trophy size={54} />
+          <Trophy size={32} />
         </div>
-        <Title order={1}>
+        <Title order={2}>
           {score} / {total}
         </Title>
-        <Text size="xl" fw={800} ta="center">
+        <Text size="md" fw={800} ta="center">
           {verdict}
         </Text>
         {(streak ?? 0) > 1 ? (
@@ -51,7 +51,8 @@ export function ScoreScreen({
         <Group>
           <Button
             color="pink"
-            leftSection={<RotateCcw size={18} />}
+            size="sm"
+            leftSection={<RotateCcw size={16} />}
             onClick={onRestart}
           >
             Play again
@@ -59,7 +60,8 @@ export function ScoreScreen({
           <Button
             variant="outline"
             color="dark"
-            leftSection={<Share2 size={18} />}
+            size="sm"
+            leftSection={<Share2 size={16} />}
             onClick={() => shareScore(score, total, streak ?? 0)}
           >
             Share

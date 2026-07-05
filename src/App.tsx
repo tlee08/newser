@@ -67,11 +67,11 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <Container size="lg" py="xl">
-        <Stack gap="xl">
+      <Container size="sm" py="sm">
+        <Stack gap="sm">
           <header className="app-header">
-            <Group gap="sm" justify="center">
-              <Newspaper size={34} />
+            <Group gap="xs" justify="center">
+              <Newspaper size={22} />
               <Text fw={900} tt="uppercase" className="kicker">Newser</Text>
             </Group>
             <Title className="hero-title">Daily Briefing Brawl</Title>
