@@ -21,6 +21,7 @@ body {
 
 .app-shell {
   min-height: 100vh;
+  background-attachment: fixed;
   background:
     linear-gradient(90deg, rgba(31, 27, 24, 0.09) 1px, transparent 1px) 0 0 /
       42px 42px,

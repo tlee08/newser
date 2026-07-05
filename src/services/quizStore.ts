@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { QuizQuestion } from "../types/news";
 
-export const TOPIC_IDS = ["all", "general", "tech", "politics", "business", "sports", "science"] as const;
+export const TOPIC_IDS = ["general", "tech", "politics", "business", "sports", "science", "all"] as const;
 export type TopicId = (typeof TOPIC_IDS)[number];
 
 export const TOPIC_LABELS: Record<TopicId, string> = {
@@ -17,6 +17,7 @@ export const TOPIC_LABELS: Record<TopicId, string> = {
 type TopicState = {
   currentIndex: number;
   score: number;
+  answeredCount: number;
   selectedAnswer: string | null;
   answered: boolean;
   finished: boolean;
@@ -35,7 +36,7 @@ type QuizStore = {
 };
 
 function blankTopic(): TopicState {
-  return { currentIndex: 0, score: 0, selectedAnswer: null, answered: false, finished: false };
+  return { currentIndex: 0, score: 0, answeredCount: 0, selectedAnswer: null, answered: false, finished: false };
 }
 
 function initTopics(): Record<string, TopicState> {
@@ -46,7 +47,7 @@ function initTopics(): Record<string, TopicState> {
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
   quizzes: {},
-  activeTopic: "all",
+  activeTopic: "general",
   topics: initTopics(),
 
   setQuizzes: (data) => set({ quizzes: data }),
@@ -77,6 +78,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         [activeTopic]: {
           ...s.topics[activeTopic],
           answered: true,
+          answeredCount: s.topics[activeTopic].answeredCount + 1,
           score: correct ? s.topics[activeTopic].score + 1 : s.topics[activeTopic].score,
         },
       },

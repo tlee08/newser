@@ -103,12 +103,14 @@ function TopicTabs({
   onChange: (t: TopicId) => void;
 }) {
   const allTopics = useQuizStore((s) => s.topics);
+  const quizzes = useQuizStore((s) => s.quizzes);
 
   return (
     <Group justify="center" gap="xs">
       {topics.map((id) => {
         const t = allTopics[id];
-        const score = t?.score ?? 0;
+        const answeredCount = t?.answeredCount ?? 0;
+        const total = quizzes[id]?.length ?? 5;
         const isActive = id === active;
 
         return (
@@ -120,7 +122,7 @@ function TopicTabs({
             onClick={() => onChange(id)}
             rightSection={
               <Badge size="sm" color={isActive ? "pink" : "dark"} variant="light">
-                {score}/5
+                {answeredCount}/{total}
               </Badge>
             }
           >

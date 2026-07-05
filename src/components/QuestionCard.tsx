@@ -61,13 +61,18 @@ export function QuestionCard({
         />
 
         {question.imageUrl ? (
-          <Image
-            key={question.imageUrl}
-            src={question.imageUrl}
-            alt=""
-            className="news-image"
-            fallbackSrc="/news-placeholder.svg"
-          />
+          <>
+            <Image
+              key={question.imageUrl}
+              src={question.imageUrl}
+              alt=""
+              className="news-image"
+              fallbackSrc="/news-placeholder.svg"
+            />
+            <Anchor href={question.imageUrl} target="_blank" rel="noreferrer" size="10px" ta="right" c="pink.7">
+              image source
+            </Anchor>
+          </>
         ) : (
           <div className="image-fallback">Breaking-ish</div>
         )}
