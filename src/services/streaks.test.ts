@@ -21,7 +21,7 @@ const localStorageMock = {
 };
 Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 
-let writeTextMock = vi.fn().mockResolvedValue(undefined);
+const writeTextMock = vi.fn().mockResolvedValue(undefined);
 Object.defineProperty(navigator, "clipboard", {
   value: { writeText: writeTextMock },
   writable: true,

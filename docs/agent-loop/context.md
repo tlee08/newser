@@ -15,14 +15,20 @@ Curious readers who want a quick, playful briefing. The app should feel like a l
 - UI library: Mantine
 - Icons: `lucide-react`
 - News source: NewsAPI
-- Dev API route: Vite middleware at `/api/news`
+- LLM: DeepSeek (quiz generation)
+- Dev API routes: `/api/quizzes` (pre-generated), `/api/news`, `/api/generate-quiz`, `/api/save-collected-data`
+- Shared pipeline: `lib/pipeline.ts` (NewsAPI fetch, DeepSeek quiz gen, data persistence)
+- Data persistence: `resources/collected_data/` (timestamped JSON, gitignored)
+- Promo image CLI: `pnpm generate-promo` (Playwright headless, 3 ratios × 3 styles)
+- Promo output: `resources/promotion_images/` (gitignored)
 
 ## Current Boundaries
 
-- The app fetches live news from NewsAPI and generates quizzes via DeepSeek LLM (server-side).
-- The Vite dev server owns both API keys and returns quiz data to the browser.
-- If keys are missing or APIs fail, rule-based quiz generation with fallback demo articles keeps the app usable.
-- Country filtering is limited to US/Worldwide due to NewsAPI free-tier restrictions.
+- The server pre-generates quizzes at startup (NewsAPI → DeepSeek for "All" topic, rule-based for category topics). Quizzes are cached in memory for the session.
+- The client fetches all quizzes via `GET /api/quizzes` once on load.
+- Per-topic quiz state (current question, score, progress) is managed by zustand.
+- Topics: All, General, Tech, Politics, Business, Sports, Science — each independent 5-question quiz.
+- If keys are missing or APIs fail, fallback articles and rule-based quiz generation keep the app usable.
 - No database, auth, or user accounts are included yet.
 - Streaks are persisted in localStorage.
 

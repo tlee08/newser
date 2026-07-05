@@ -1,0 +1,173 @@
+import { existsSync } from "node:fs";
+import { mkdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { chromium } from "playwright";
+import { loadEnvFile, type CollectedDataFile, type QuizQuestionOutput } from "../lib/pipeline";
+
+const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
+const PROMO_DIR = join(import.meta.dirname, "..", "resources", "promotion_images");
+
+// ── args ──
+
+async function main() {
+  loadEnvFile();
+
+  const fileArg = process.argv.findIndex((a) => a === "--file");
+  if (fileArg === -1 || fileArg + 1 >= process.argv.length) {
+    console.log("Usage:\n  pnpm generate-promo --file <name>");
+    process.exit(1);
+  }
+
+  const filename = process.argv[fileArg + 1];
+  const filePath = join(DATA_DIR, filename);
+
+  if (!existsSync(filePath)) {
+    console.error(`Error: file not found: ${filePath}`);
+    process.exit(1);
+  }
+
+  const data = JSON.parse(await readFile(filePath, "utf-8")) as CollectedDataFile;
+  if (!Array.isArray(data.quizQuestions) || data.quizQuestions.length === 0) {
+    console.error("Error: file contains no quizQuestions");
+    process.exit(1);
+  }
+
+  const runId = filename.replace(/\.json$/, "");
+  const outDir = join(PROMO_DIR, runId);
+
+  console.log(`Rendering ${data.quizQuestions.length} questions to ${outDir}...`);
+
+  const browser = await chromium.launch({ headless: true });
+  let total = 0;
+
+  for (const q of data.quizQuestions) {
+    console.log(`  ${q.id}:`);
+    total += (await renderOne(browser, q, outDir)).length;
+  }
+
+  await browser.close();
+  console.log(`\nDone! ${total} images saved to ${outDir}`);
+}
+
+main().catch((err) => { console.error("Fatal error:", err); process.exit(1); });
+
+// ── renderer ──
+
+const W = 1080;
+const H = 1080;
+
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+const ICON_SVG = (size: number) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>`;
+
+const BG = `linear-gradient(90deg,rgba(31,27,24,.09) 1px,transparent 1px) 0 0 / 42px 42px,radial-gradient(circle at 12% 8%,#ff6b9c 0 9%,transparent 10%),radial-gradient(circle at 86% 18%,#38d9a9 0 8%,transparent 9%),#f7e14b`;
+
+const SHARED_CSS = `
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Space+Grotesk:wght@700;800&display=swap");
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{display:grid;place-items:center;width:${W}px;height:${H}px;overflow:hidden}
+body{font-family:Inter,system-ui,sans-serif;color:#1f1b18;background:${BG}}
+body{opacity:0}
+body.fonts-loaded{opacity:1;transition:opacity .2s}
+.card-wrap{display:flex;flex-direction:column;align-items:center}
+.kicker{font-family:"Space Grotesk",sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.16em}
+.hero-title-text{font-family:"Space Grotesk",sans-serif;font-weight:900;text-transform:uppercase;line-height:.9;text-shadow:5px 5px 0 #fff}
+.tagline{font-weight:800;text-align:center}
+.card{border:4px solid #1f1b18;border-radius:8px;background:#fffdf2;box-shadow:10px 10px 0 #1f1b18;width:100%}
+.card-image{border-radius:6px;overflow:hidden;margin-bottom:20px}
+.card-image img{display:block;width:100%;object-fit:cover;border:2px solid #1f1b18;border-radius:4px}
+.option{padding:14px 18px;border:2px solid #1f1b18;border-radius:6px;background:#fff;font-weight:700}
+.answer-highlight{padding:16px 20px;border:2px solid #1f1b18;border-radius:6px;background:#c3fae8;font-weight:800}
+.summary{padding:18px;border:2px solid #1f1b18;border-radius:6px;background:#f1f3f5;font-weight:500}
+.source-url{font-size:11px;color:#6b6b6b;word-break:break-all;margin-top:4px}
+`;
+
+type Style = "classic" | "hero";
+
+const STYLES: Record<Style, string> = {
+  classic: `
+    .card-wrap{gap:20px;width:820px;padding:32px}.icon-wrap{color:#1f1b18}.kicker{font-size:32px}
+    .hero-title-text{display:none}.tagline{display:none}.card{padding:40px}
+    .prompt{font-size:36px;font-weight:900;line-height:1.15;margin-bottom:24px}
+    .card-image img{max-height:280px}
+    .options,.answer-block{gap:10px;display:flex;flex-direction:column}
+    .option{font-size:20px}.answer-highlight{font-size:22px}.summary{font-size:18px}
+  `,
+  hero: `
+    .card-wrap{gap:16px;width:880px;padding:28px 32px}.icon-wrap{color:#1f1b18}.kicker{font-size:28px}
+    .hero-title-text{font-size:52px;margin-top:4px}.tagline{font-size:22px;margin-top:8px}
+    .card{padding:38px;margin-top:8px}
+    .prompt{font-size:34px;font-weight:900;line-height:1.15;margin-bottom:22px}
+    .card-image img{max-height:260px}
+    .options,.answer-block{gap:10px;display:flex;flex-direction:column}
+    .option{font-size:19px}.answer-highlight{font-size:21px}.summary{font-size:17px}
+  `,
+};
+
+function header(style: Style): string {
+  if (style === "hero") {
+    return `<div class="icon-wrap">${ICON_SVG(40)}</div>
+<div class="kicker">Newser</div>
+<div class="hero-title-text">Daily Briefing Brawl</div>
+<div class="tagline">Five headlines enter. One reader leaves mildly informed and overconfident.</div>`;
+  }
+  return `<div class="icon-wrap">${ICON_SVG(36)}</div>
+<div class="kicker">Newser</div>`;
+}
+
+function questionHtml(q: QuizQuestionOutput, style: Style): string {
+  const imgBlock = q.imageUrl ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>` : "";
+  const opts = q.options.map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`).join("");
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES[style]}</style></head><body>
+<div class="card-wrap">${header(style)}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div><div class="options">${opts}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
+function answerHtml(q: QuizQuestionOutput, style: Style): string {
+  const imgBlock = q.imageUrl ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>` : "";
+  const srcUrl = q.articleUrl ? `<div class="source-url">${esc(q.articleUrl)}</div>` : "";
+  const imgUrl = q.imageUrl ? `<div class="source-url">${esc(q.imageUrl)}</div>` : "";
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES[style]}</style></head><body>
+<div class="card-wrap">${header(style)}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div>
+<div class="answer-block"><div class="answer-highlight">${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
+}
+
+async function renderOne(
+  browser: Awaited<ReturnType<typeof chromium.launch>>,
+  question: QuizQuestionOutput,
+  outputDir: string,
+): Promise<string[]> {
+  const styles: Style[] = ["classic", "hero"];
+  const paths: string[] = [];
+  const qDir = join(outputDir, question.id);
+
+  await mkdir(qDir, { recursive: true });
+
+  const context = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+
+  for (const st of styles) {
+    for (const variant of ["square", "answer"] as const) {
+      const name = `${st}-${variant}`;
+      const outPath = join(qDir, `${name}.png`);
+      const html = variant === "square" ? questionHtml(question, st) : answerHtml(question, st);
+      try {
+        await page.setContent(html, { waitUntil: "networkidle" });
+        await page.waitForSelector("body.fonts-loaded", { timeout: 10000 });
+        await page.screenshot({ path: outPath, fullPage: true });
+        paths.push(outPath);
+        console.log(`    ${name}`);
+      } catch (err: any) {
+        console.error(`    Failed ${name}: ${err.message}`);
+      }
+    }
+  }
+
+  await context.close();
+  return paths;
+}

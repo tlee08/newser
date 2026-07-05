@@ -91,11 +91,11 @@ export function QuestionCard({
         <Radio.Group value={selectedAnswer} onChange={onSelect}>
           <Stack gap="sm">
             {question.options.map((option, index) => {
-              const isCorrect = answered && option === question.correctAnswer;
+              const isCorrect = answered && index === question.correctAnswerIndex;
               const isWrongPick =
                 answered &&
                 selectedAnswer === option &&
-                option !== question.correctAnswer;
+                index !== question.correctAnswerIndex;
               const isFirst = index === 0;
               return (
                 <Radio.Card
@@ -120,7 +120,7 @@ export function QuestionCard({
         {answered ? (
           <Stack className="summary-strip" gap="sm">
             <Text fw={800}>
-              {selectedAnswer === question.correctAnswer
+              {selectedAnswer === question.options[question.correctAnswerIndex]
                 ? "Correct. The newsroom salutes you."
                 : "Nope. The headline had other plans."}
             </Text>

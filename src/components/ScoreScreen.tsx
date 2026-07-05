@@ -5,7 +5,7 @@ import { shareScore } from "../services/streaks";
 type ScoreScreenProps = {
   score: number;
   total: number;
-  streak: number;
+  streak?: number;
   onRestart: () => void;
 };
 
@@ -34,7 +34,7 @@ export function ScoreScreen({
         <Text size="xl" fw={800} ta="center">
           {verdict}
         </Text>
-        {streak > 1 ? (
+        {(streak ?? 0) > 1 ? (
           <Badge
             color="pink"
             variant="filled"
@@ -60,7 +60,7 @@ export function ScoreScreen({
             variant="outline"
             color="dark"
             leftSection={<Share2 size={18} />}
-            onClick={() => shareScore(score, total, streak)}
+            onClick={() => shareScore(score, total, streak ?? 0)}
           >
             Share
           </Button>

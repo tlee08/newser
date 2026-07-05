@@ -13,7 +13,7 @@ export type QuizQuestion = {
   imageUrl?: string;
   source: string;
   articleUrl: string;
-  correctAnswer: string;
+  correctAnswerIndex: number;
   options: string[];
   summary: string;
 };

@@ -48,6 +48,19 @@ pnpm typecheck
 pnpm build
 pnpm test
 pnpm start
+
+# Quiz generation (once-off; persists to collected_data)
+pnpm generate-quiz --fresh
+
+# Promo image generation
+pnpm generate-promo --file <name>  # Render promo images from existing collected data
 ```
 
-`pnpm start` runs the production Node server (`server.mjs`) which serves the static build and proxies `/api/news` to NewsAPI using `NEWSAPI_KEY` from the environment. For platforms like Railway, Render, or Fly.io, set `NEWSAPI_KEY` as an environment variable and the build command to `pnpm build` and start command to `pnpm start`.
+`pnpm dev` starts the Vite dev server. By default it loads the latest quiz data from `resources/collected_data/`, falling back to fresh generation if none exists. Override with `QUIZ_SOURCE`:
+
+```bash
+QUIZ_SOURCE=fresh pnpm dev              # Force fresh generation
+QUIZ_SOURCE=2026-07-05.json pnpm dev    # Use specific collected data file
+```
+
+`pnpm generate-quiz --fresh` fetches news, generates quizzes via DeepSeek, categorizes them, and saves to `resources/collected_data/`. Use this to pre-generate quiz data before running the dev server.

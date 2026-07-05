@@ -21,7 +21,7 @@ A funny daily news quiz app. Five headlines enter, one reader leaves mildly info
         │ fetch()       │
         ▼               ▼
 ┌──────────────────────────────────────────────────────────┐
-│              Server (Vite middleware / server.mjs)         │
+│              Server (Vite middleware / server.ts)            │
 │                                                          │
 │  GET  /api/news          ───▶  NewsAPI top-headlines     │
 │  POST /api/generate-quiz ───▶  DeepSeek chat completions │
@@ -50,7 +50,7 @@ fetchDailyNews()
 ```
 
 - **Dev**: Handled by a Vite plugin (`vite.config.ts`) that adds Express-style middleware.
-- **Prod**: Handled by `server.mjs`, a zero-dependency Node HTTP server. Serves static files from `dist/` and proxies `/api/*`.
+- **Prod**: Handled by `server.ts`, a zero-dependency Node HTTP server. Serves static files from `dist/` and proxies `/api/*`.
 - If no key is present, returns an empty list and the app falls back to 5 hardcoded demo articles.
 
 ### 2. Generate Questions (Rule-Based)
@@ -97,7 +97,21 @@ generateLLMQuiz(articles)
 - If the LLM call fails or returns malformed JSON, the function returns `[]` and the app silently falls back to the rule-based engine.
 - Keys are server-side only — the browser never sees them.
 
-### 4. Store Data
+### 4. Persist Data
+
+Quiz data is saved server-side for reproduction and promo generation:
+
+```
+POST /api/save-collected-data → resources/collected_data/<timestamp>.json
+```
+
+Each snapshot contains:
+
+- All raw NewsAPI articles with explicit `id` fields (`a-0`, `a-1`, …)
+- Quiz questions with `articleRef` foreign keys mapping back to source articles
+- Article `imageUrl` fields for reproduction in promo images
+
+### 5. Store Data
 
 | Data                     | Storage                                  | Lifetime                                 |
 | ------------------------ | ---------------------------------------- | ---------------------------------------- |
@@ -114,7 +128,7 @@ generateLLMQuiz(articles)
 - Same-day replay → no change
 - Uses UTC dates so streaks work across timezones
 
-### 5. Present Data (UI)
+### 6. Present Data (UI)
 
 The app is a **finite state machine** with three stages:
 
@@ -157,8 +171,16 @@ newser/
 │   └── components/
 │       ├── QuestionCard.tsx        # Single quiz question UI
 │       └── ScoreScreen.tsx        # Final score + share UI
+├── lib/
+│   └── pipeline.ts                # Shared: NewsAPI fetch, DeepSeek, data persistence
+├── scripts/
+│   ├── generate-promo.ts          # CLI entry: pnpm generate-promo
+│   └── render-promo-images.ts     # Playwright headless → PNG quiz cards
+├── server.ts                      # Production Node server
 ├── vite.config.ts                 # Dev server + API middleware
-├── server.mjs                     # Production Node server
+├── resources/                     # gitignored
+│   ├── collected_data/            # Timestamped pipeline snapshots
+│   └── promotion_images/          # Generated social media PNGs
 ├── public/
 │   └── news-placeholder.svg       # Fallback image
 ├── docs/
@@ -172,13 +194,54 @@ newser/
 ## Commands
 
 ```bash
-pnpm install      # Install dependencies
-pnpm dev          # Start Vite dev server (with API middleware)
-pnpm build        # Type-check + bundle for production
-pnpm start        # Run production server (node server.mjs)
-pnpm test         # Run vitest (37 tests)
-pnpm typecheck    # TypeScript check only
+pnpm install            # Install dependencies
+pnpm dev                # Start Vite dev server (loads latest collected_data, fallback fresh)
+pnpm build              # Type-check + bundle for production
+pnpm start              # Run production server (tsx server.ts)
+pnpm test               # Run vitest (37 tests)
+pnpm typecheck          # TypeScript check only
+pnpm generate-quiz      # Fetch news + generate + save to collected_data (once-off)
+pnpm generate-promo     # Generate social media promo images
 ```
+
+### `pnpm dev`
+
+By default loads the latest quiz data from `resources/collected_data/`. Override with `QUIZ_SOURCE`:
+
+```bash
+QUIZ_SOURCE=fresh pnpm dev              # Force fresh generation
+QUIZ_SOURCE=2026-07-05.json pnpm dev    # Use specific collected data file
+```
+
+### `pnpm generate-quiz`
+
+Pre-generates quiz data once (fetches news, runs DeepSeek, categorizes, saves):
+
+```bash
+pnpm generate-quiz --fresh
+pnpm generate-quiz --file 2026-07-05T12-34-56.json
+```
+
+### `pnpm generate-promo`
+
+Generates styled PNG quiz-card images from previously collected quiz data:
+
+```bash
+pnpm generate-promo --file 2026-07-05T12-34-56.json
+```
+
+Reads a saved pipeline snapshot from `resources/collected_data/`, renders all questions, and saves to `resources/promotion_images/<filename>/<question-id>/`.
+
+**4 images per question (2 styles × 2 variants):**
+
+| File | Content |
+|------|---------|
+| `classic-square.png` | Icon + "Newser" + question + 4 options |
+| `classic-answer.png` | Same header + correct answer (green) + summary + source link |
+| `hero-square.png` | Full header + "Daily Briefing Brawl" + question + options |
+| `hero-answer.png` | Full header + correct answer + summary + source link |
+
+Use `pnpm generate-quiz` to create the collected data first. Requires Playwright.
 
 ---
 

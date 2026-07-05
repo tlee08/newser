@@ -1,7 +1,6 @@
 import {
-  Alert,
+  Badge,
   Button,
-  Chip,
   Container,
   Group,
   Loader,
@@ -9,136 +8,62 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { Filter, Globe, Newspaper, RefreshCcw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Newspaper } from "lucide-react";
+import { useEffect, useState } from "react";
 import { QuestionCard } from "./components/QuestionCard";
 import { ScoreScreen } from "./components/ScoreScreen";
-import { generateLLMQuiz } from "./services/llmQuiz";
-import { fetchDailyNews } from "./services/newsApi";
-import { buildDailyQuiz, detectCategory } from "./services/quizBuilder";
-import { recordPlay } from "./services/streaks";
-import type { NewsArticle, QuizQuestion } from "./types/news";
+import { useQuizStore, TOPIC_IDS, TOPIC_LABELS, type TopicId } from "./services/quizStore";
+import type { QuizQuestion } from "./types/news";
 
-type Stage = "loading" | "playing" | "score";
+type FetchState = "loading" | "ready" | "error";
 
 export default function App() {
-  const [stage, setStage] = useState<Stage>("loading");
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [answered, setAnswered] = useState(false);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [llmQuizQuestions, setLLMQuizQuestions] = useState<
-    QuizQuestion[] | null
-  >(null);
+  const [fetchState, setFetchState] = useState<FetchState>("loading");
+  const activeTopic = useQuizStore((s) => s.activeTopic);
+  const setActiveTopic = useQuizStore((s) => s.setActiveTopic);
+  const setQuizzes = useQuizStore((s) => s.setQuizzes);
+  const quizzes = useQuizStore((s) => s.quizzes);
 
-  const availableCategories = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const article of articles) {
-      const cat = detectCategory(article);
-      counts.set(cat, (counts.get(cat) ?? 0) + 1);
-    }
-    return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([cat]) => cat);
-  }, [articles]);
-
-  const filteredArticles = useMemo(
-    () =>
-      selectedCategory
-        ? articles.filter((a) => detectCategory(a) === selectedCategory)
-        : articles,
-    [articles, selectedCategory],
-  );
-
-  const quizArticles = useMemo(
-    () => (filteredArticles.length >= 5 ? filteredArticles : articles),
-    [filteredArticles, articles],
-  );
-
-  const ruleBasedQuiz = useMemo(
-    () => buildDailyQuiz(quizArticles),
-    [quizArticles],
-  );
-  const quiz = llmQuizQuestions ?? ruleBasedQuiz;
-  const currentQuestion = quiz[questionIndex];
-
-  async function loadNews() {
-    setStage("loading");
-    setError(null);
-    setLLMQuizQuestions(null);
-    try {
-      const dailyNews = await fetchDailyNews(selectedCountry ?? undefined);
-      setArticles(dailyNews);
-
-      if (dailyNews.length >= 5) {
-        try {
-          const llm = await generateLLMQuiz(dailyNews);
-          if (llm.length === 5 && llm.every((q) => q.options.length === 4)) {
-            setLLMQuizQuestions(llm);
-          }
-        } catch {
-          // LLM failed, will use rule-based fallback
+  useEffect(() => {
+    fetch("/api/quizzes")
+      .then((r) => r.json())
+      .then((data: { quizzes: Record<string, QuizQuestion[]> }) => {
+        if (data.quizzes) {
+          setQuizzes(data.quizzes);
+          setFetchState("ready");
+        } else {
+          setFetchState("error");
         }
-      }
-    } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "NewsAPI went full mime.",
-      );
-      setArticles([]);
-    } finally {
-      setQuestionIndex(0);
-      setSelectedAnswer(null);
-      setAnswered(false);
-      setScore(0);
-      setStage("playing");
-    }
+      })
+      .catch(() => setFetchState("error"));
+  }, [setQuizzes]);
+
+  if (fetchState === "loading") {
+    return (
+      <main className="app-shell">
+        <Container size="lg" py="xl">
+          <div className="loading-panel">
+            <Loader color="pink" />
+            <Text fw={800}>Shaking the news vending machine...</Text>
+          </div>
+        </Container>
+      </main>
+    );
   }
 
-  useEffect(() => {
-    void loadNews();
-  }, []);
-
-  useEffect(() => {
-    setLLMQuizQuestions(null);
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    void loadNews();
-  }, [selectedCountry]);
-
-  function submitAnswer() {
-    if (!selectedAnswer || answered) {
-      return;
-    }
-
-    if (selectedAnswer === currentQuestion.correctAnswer) {
-      setScore((currentScore) => currentScore + 1);
-    }
-    setAnswered(true);
+  if (fetchState === "error" || Object.keys(quizzes).length === 0) {
+    return (
+      <main className="app-shell">
+        <Container size="lg" py="xl">
+          <Stack align="center" mt="xl">
+            <Text fw={800} size="lg">Could not load quizzes. Try again later.</Text>
+          </Stack>
+        </Container>
+      </main>
+    );
   }
 
-  const finishQuiz = useCallback(() => {
-    setStreak(recordPlay());
-    setStage("score");
-  }, []);
-
-  function nextQuestion() {
-    if (questionIndex + 1 >= quiz.length) {
-      finishQuiz();
-      return;
-    }
-
-    setQuestionIndex((index) => index + 1);
-    setSelectedAnswer(null);
-    setAnswered(false);
-  }
+  const availableTopics = TOPIC_IDS.filter((id) => quizzes[id]);
 
   return (
     <main className="app-shell">
@@ -147,97 +72,110 @@ export default function App() {
           <header className="app-header">
             <Group gap="sm" justify="center">
               <Newspaper size={34} />
-              <Text fw={900} tt="uppercase" className="kicker">
-                Newser
-              </Text>
+              <Text fw={900} tt="uppercase" className="kicker">Newser</Text>
             </Group>
             <Title className="hero-title">Daily Briefing Brawl</Title>
             <Text className="hero-copy">
-              Five headlines enter. One reader leaves mildly informed and
-              overconfident.
+              Five headlines enter. One reader leaves mildly informed and overconfident.
             </Text>
           </header>
 
-          {error ? (
-            <Alert color="yellow" title="Using demo headlines">
-              {error}
-            </Alert>
-          ) : null}
+          <TopicTabs
+            active={activeTopic}
+            topics={availableTopics}
+            onChange={setActiveTopic}
+          />
 
-          {availableCategories.length > 1 ? (
-            <Group justify="center" gap="xs">
-              <Filter size={16} />
-              <Chip.Group
-                multiple={false}
-                value={selectedCategory ?? ""}
-                onChange={(val) => setSelectedCategory(val || null)}
-              >
-                <Chip value="">All</Chip>
-                {availableCategories.map((cat) => (
-                  <Chip key={cat} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </Chip>
-                ))}
-              </Chip.Group>
-            </Group>
-          ) : null}
-
-          <Group justify="center" gap="xs">
-            <Globe size={16} />
-            <Chip.Group
-              multiple={false}
-              value={selectedCountry ?? ""}
-              onChange={(val) => setSelectedCountry(val || null)}
-            >
-              <Chip value="">Worldwide</Chip>
-              <Chip value="us">US</Chip>
-            </Chip.Group>
-          </Group>
-
-          <Group justify="center">
-            <Button
-              variant="subtle"
-              color="dark"
-              leftSection={<RefreshCcw size={18} />}
-              onClick={loadNews}
-            >
-              Refresh headlines
-            </Button>
-          </Group>
-
-          {stage === "loading" ? (
-            <div className="loading-panel">
-              <Loader color="pink" />
-              <Text fw={800}>Shaking the news vending machine...</Text>
-            </div>
-          ) : null}
-
-          {stage === "playing" && currentQuestion ? (
-            <QuestionCard
-              key={currentQuestion.id}
-              question={currentQuestion}
-              questionNumber={questionIndex + 1}
-              totalQuestions={quiz.length}
-              selectedAnswer={selectedAnswer}
-              answered={answered}
-              score={score}
-              onSelect={setSelectedAnswer}
-              onSubmit={submitAnswer}
-              onNext={nextQuestion}
-              onRestart={loadNews}
-            />
-          ) : null}
-
-          {stage === "score" ? (
-            <ScoreScreen
-              score={score}
-              total={quiz.length}
-              streak={streak}
-              onRestart={loadNews}
-            />
-          ) : null}
+          <TopicQuiz key={activeTopic} topic={activeTopic} />
         </Stack>
       </Container>
     </main>
+  );
+}
+
+function TopicTabs({
+  active,
+  topics,
+  onChange,
+}: {
+  active: TopicId;
+  topics: TopicId[];
+  onChange: (t: TopicId) => void;
+}) {
+  const allTopics = useQuizStore((s) => s.topics);
+
+  return (
+    <Group justify="center" gap="xs">
+      {topics.map((id) => {
+        const t = allTopics[id];
+        const score = t?.score ?? 0;
+        const isActive = id === active;
+
+        return (
+          <Button
+            key={id}
+            variant={isActive ? "filled" : "outline"}
+            color={isActive ? "pink" : "dark"}
+            size="sm"
+            onClick={() => onChange(id)}
+            rightSection={
+              <Badge size="sm" color={isActive ? "pink" : "dark"} variant="light">
+                {score}/5
+              </Badge>
+            }
+          >
+            {TOPIC_LABELS[id]}
+          </Button>
+        );
+      })}
+    </Group>
+  );
+}
+
+function TopicQuiz({ topic }: { topic: TopicId }) {
+  const quizzes = useQuizStore((s) => s.quizzes);
+  const topics = useQuizStore((s) => s.topics);
+  const selectAnswer = useQuizStore((s) => s.selectAnswer);
+  const submitAnswer = useQuizStore((s) => s.submitAnswer);
+  const nextQuestion = useQuizStore((s) => s.nextQuestion);
+  const restartTopic = useQuizStore((s) => s.restartTopic);
+
+  const questions = quizzes[topic];
+  const t = topics[topic];
+
+  if (!questions || questions.length === 0) {
+    return (
+      <Text ta="center" c="dark.3">No questions available for this topic.</Text>
+    );
+  }
+
+  if (t.finished) {
+    return (
+      <ScoreScreen
+        score={t.score}
+        total={questions.length}
+        onRestart={() => restartTopic(topic)}
+      />
+    );
+  }
+
+  const current = questions[t.currentIndex];
+  if (!current) return null;
+
+  return (
+    <div>
+      <QuestionCard
+        question={current}
+        questionNumber={t.currentIndex + 1}
+        totalQuestions={questions.length}
+        selectedAnswer={t.selectedAnswer}
+        answered={t.answered}
+        score={t.score}
+        onSelect={selectAnswer}
+        onSubmit={submitAnswer}
+        onNext={nextQuestion}
+        onRestart={() => restartTopic(topic)}
+      />
+    </div>
   );
 }
