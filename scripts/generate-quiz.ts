@@ -1,6 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { loadEnvFile, saveCollectedData, type CollectedDataFile, type QuizQuestionOutput } from "../lib/pipeline";
+import {
+  loadEnvFile,
+  saveCollectedData,
+  type CollectedDataFile,
+  type QuizQuestionOutput,
+} from "../lib/pipeline";
 
 const USAGE = `Usage:
   pnpm generate-quiz --fresh
@@ -13,42 +18,36 @@ Options:
                  regenerate quiz questions via DeepSeek (different each time),
                  save as a new collected_data file.`;
 
-type Args = { mode: "fresh" } | { mode: "file"; file: string };
+const TOPICS = [
+  { topic: "general", category: "general" },
+  { topic: "tech", category: "technology" },
+  { topic: "politics", q: "politics" },
+  { topic: "business", category: "business" },
+  { topic: "sports", category: "sports" },
+  { topic: "science", category: "science" },
+];
 
-const TOPICS: Record<string, { category?: string; q?: string }> = {
-  all: {},
-  general: { category: "general" },
-  tech: { category: "technology" },
-  politics: { q: "politics" },
-  business: { category: "business" },
-  sports: { category: "sports" },
-  science: { category: "science" },
-};
-
-// ── args ──
-
-function parseArgs(argv: string[]): Args | null {
-  let fresh = false;
-  let file: string | undefined;
-
-  for (let i = 2; i < argv.length; i++) {
-    const arg = argv[i];
-    if (arg === "--fresh") fresh = true;
-    else if (arg === "--file" && i + 1 < argv.length) file = argv[++i];
-    else { console.error(`Unknown argument: ${arg}`); return null; }
-  }
-
-  if (fresh) return { mode: "fresh" };
-  if (file) return { mode: "file", file };
-  console.error("Error: specify --fresh or --file");
-  return null;
-}
+const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
 
 // ── NewsAPI ──
 
-type RawArticle = { title?: string; description?: string; url?: string; urlToImage?: string; source?: { name?: string }; publishedAt?: string };
+type RawArticle = {
+  id: string;
+  topic: string;
+  title: string;
+  description?: string;
+  url: string;
+  urlToImage?: string;
+  source?: { name?: string };
+  publishedAt?: string;
+};
 
-async function fetchNews(apiKey: string, category?: string, q?: string): Promise<RawArticle[]> {
+async function fetchNews(
+  apiKey: string,
+  topic: string,
+  category?: string,
+  q?: string,
+): Promise<RawArticle[]> {
   const url = new URL("https://newsapi.org/v2/top-headlines");
   url.searchParams.set("language", "en");
   url.searchParams.set("pageSize", "20");
@@ -62,21 +61,34 @@ async function fetchNews(apiKey: string, category?: string, q?: string): Promise
     throw new Error(payload.message ?? "NewsAPI request failed");
   }
   const payload = (await response.json()) as { articles?: RawArticle[] };
-  return payload.articles ?? [];
+  return (payload.articles ?? []).map((a, i) => ({
+    ...a,
+    id: `${topic}-a${i}`,
+    topic,
+  }));
 }
 
-function normalize(articles: RawArticle[]) {
-  const inputs: { title: string; description: string; url: string; source: string; imageUrl?: string }[] = [];
-  const indices: number[] = [];
+type ArticleInput = {
+  title: string;
+  description: string;
+  url: string;
+  source: string;
+  imageUrl?: string;
+};
 
-  for (let i = 0; i < articles.length && inputs.length < 5; i++) {
-    const a = articles[i];
-    if (a.title && a.url) {
-      inputs.push({ title: a.title, description: a.description ?? "", url: a.url, source: a.source?.name ?? "Unknown", imageUrl: a.urlToImage });
-      indices.push(i);
-    }
-  }
-  return { inputs, indices };
+function toInput(
+  a: RawArticle | CollectedDataFile["rawArticles"][number],
+): ArticleInput {
+  return {
+    title: a.title,
+    description: a.description ?? "",
+    url: a.url,
+    source:
+      typeof a.source === "object"
+        ? (a.source?.name ?? "Unknown")
+        : (a.source ?? "Unknown"),
+    imageUrl: (a as any).urlToImage ?? (a as any).imageUrl,
+  };
 }
 
 // ── DeepSeek ──
@@ -87,16 +99,9 @@ RULES:
 - Generate exactly 5 questions, one per article.
 - Each question must have: a prompt, 4 answer options, the correct answer, and a short factual summary (1 sentence).
 - The prompt should be funny and energetic — like a loud morning show host.
-- The correct answer must be factually accurate based on the article. Do NOT invent false events. The correct answer should be a compact version of the headline without trailing source info.
+- The correct answer must be factually accurate based on the article. Do NOT invent false events.
 - The summary must stick to the article facts. Do not fabricate.
-
-For each question, provide exactly 4 answer options (the correct answer MUST be one of them):
-1. The correct answer.
-2. One humorously far-fetched decoy — absurd, playful, obviously wrong.
-3. One plausible-but-whimsical decoy — sounds almost believable but has a playful twist.
-4. One decoy loosely adapted from another article's headline — take a different article's topic and rework it to feel oddly relevant to this question. You will receive the other headlines.
-
-Return ONLY a JSON array. No markdown, no explanations.
+- Return ONLY a JSON array. No markdown, no explanations.
 
 Format:
 [{
@@ -106,79 +111,88 @@ Format:
   "summary": "One sentence factual summary"
 }]`;
 
+function shuffle(options: string[]): { options: string[]; idx: number } {
+  const arr = [...options];
+  const correct = arr[0];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return { options: arr, idx: arr.indexOf(correct) };
+}
+
 async function generateQuiz(
-  articles: { title: string; description: string; url: string; source: string; imageUrl?: string }[],
+  articles: ArticleInput[],
   apiKey: string,
 ): Promise<QuizQuestionOutput[]> {
-  if (!apiKey || articles.length < 5) return [];
-
-  const articleText = articles.map((a, i) => `Article ${i + 1}:\nTitle: ${a.title}\nSource: ${a.source}\nDescription: ${a.description}`).join("\n\n");
+  const articleText = articles
+    .map(
+      (a, i) =>
+        `Article ${i + 1}:\nTitle: ${a.title}\nSource: ${a.source}\nDescription: ${a.description}`,
+    )
+    .join("\n\n");
   const otherHeadlines = articles.map((a) => `- ${a.title}`).join("\n");
 
   const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       model: "deepseek-chat",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a 5-question quiz from these articles:\n\n${articleText}` },
+        {
+          role: "user",
+          content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a 5-question quiz from these articles:\n\n${articleText}`,
+        },
       ],
       max_tokens: 2000,
       temperature: 0.9,
     }),
   });
 
-  if (!response.ok) return [];
+  if (!response.ok) throw new Error(`DeepSeek returned ${response.status}`);
 
-  const payload = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+  const payload = (await response.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
   const raw = payload?.choices?.[0]?.message?.content ?? "";
+  const cleaned = raw.replace(/```(?:json)?/g, "").trim();
+  const parsed = JSON.parse(cleaned);
+  if (!Array.isArray(parsed) || parsed.length === 0)
+    throw new Error("DeepSeek returned empty response");
 
-  try {
-    const cleaned = raw.replace(/```(?:json)?/g, "").trim();
-    const parsed = JSON.parse(cleaned) as any[];
-    if (!Array.isArray(parsed) || parsed.length === 0) return [];
-    return parsed.slice(0, 5).map((q: any, i: number) => {
-      const rawOptions: string[] = Array.isArray(q.options) && q.options.length === 4 ? q.options : [];
-      const correctAnswer = q.correctAnswer ?? articles[i]?.title ?? "";
-      const options = rawOptions.includes(correctAnswer) ? rawOptions : [correctAnswer, ...rawOptions.slice(0, 3)];
-      // Fisher-Yates shuffle
-      const arr = [...options];
-      const correct = arr[0];
-      for (let j = arr.length - 1; j > 0; j--) {
-        const k = Math.floor(Math.random() * (j + 1));
-        [arr[j], arr[k]] = [arr[k], arr[j]];
-      }
-      return {
-        id: `q-${i}`,
-        prompt: q.prompt ?? "What just happened?",
-        correctAnswerIndex: arr.indexOf(correct),
-        options: arr,
-        summary: q.summary ?? articles[i]?.description ?? "",
-        imageUrl: articles[i]?.imageUrl,
-        articleUrl: articles[i]?.url,
-      };
-    });
-  } catch {
-    return [];
-  }
+  return parsed.slice(0, 5).map((q: any, i: number) => {
+    if (!Array.isArray(q.options) || q.options.length !== 4) {
+      throw new Error(
+        `DeepSeek returned ${q.options?.length ?? 0} options (expected 4)`,
+      );
+    }
+    const answer: string = q.correctAnswer ?? "";
+    if (!q.options.includes(answer)) {
+      throw new Error(
+        `DeepSeek correctAnswer "${answer}" not found in options`,
+      );
+    }
+    // Move correct answer to front, then shuffle
+    const ordered = [answer, ...q.options.filter((o: string) => o !== answer)];
+    const { options, idx } = shuffle(ordered);
+    return {
+      id: "",
+      topic: "",
+      prompt: q.prompt ?? "",
+      correctAnswerIndex: idx,
+      options,
+      summary: q.summary ?? articles[i]?.description ?? "",
+      imageUrl: articles[i]?.imageUrl,
+      articleUrl: articles[i]?.url,
+    };
+  });
 }
 
-function fallbackQuiz(inputs: { title: string; description: string; url: string; source: string; imageUrl?: string }[]): QuizQuestionOutput[] {
-  return inputs.map((a, i) => ({
-    id: `q-${i}`,
-    prompt: "What's the headline about?",
-    correctAnswerIndex: 0,
-    options: [a.title, "Something else entirely", "A completely different event", "Not this one"],
-    summary: a.description,
-    imageUrl: a.imageUrl,
-    articleUrl: a.url,
-  }));
-}
-
-// ── generate + save ──
-
-const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
+// ── fresh ──
 
 async function runFresh() {
   const newsKey = process.env.NEWSAPI_KEY;
@@ -188,55 +202,66 @@ async function runFresh() {
     process.exit(1);
   }
 
-  const topics = Object.keys(TOPICS);
-  const results: Record<string, { articles: RawArticle[]; questions: QuizQuestionOutput[] }> = {};
+  const allArticles: RawArticle[] = [];
+  const allQuestions: QuizQuestionOutput[] = [];
+  const start = Date.now();
 
-  const fetches = topics.map(async (topic) => {
-    const cfg = TOPICS[topic];
+  console.log(`Fetching news for ${TOPICS.length} topics...\n`);
+
+  const fetches = TOPICS.map(async ({ topic, category, q }) => {
     try {
-      const articles = await fetchNews(newsKey, cfg.category, cfg.q);
-      return { topic, articles };
+      const articles = await fetchNews(newsKey, topic, category, q);
+      console.log(`  ${topic}: ${articles.length} articles`);
+      return articles;
     } catch {
-      console.error(`  Failed to fetch articles for "${topic}"`);
-      return { topic, articles: [] as RawArticle[] };
+      console.error(`  ${topic}: fetch failed`);
+      return [] as RawArticle[];
     }
   });
 
-  const fetched = await Promise.all(fetches);
+  let qTotal = 0;
 
-  for (const { topic, articles } of fetched) {
-    if (articles.length < 5) {
-      console.error(`  Not enough articles for "${topic}" (got ${articles.length})`);
-      continue;
+  for (const articles of await Promise.all(fetches)) {
+    if (articles.length === 0) continue;
+    const topic = articles[0].topic;
+    const inputs = articles.map(toInput);
+    allArticles.push(...articles);
+
+    const batchCount = Math.floor(inputs.length / 5);
+    console.log(
+      `\n  ${topic}: ${inputs.length} articles → ${batchCount} batches`,
+    );
+
+    for (let b = 0, qNum = 0; b < batchCount; b++) {
+      const batch = inputs.slice(b * 5, b * 5 + 5);
+      const dsQuestions = await generateQuiz(batch, dsKey);
+
+      for (const q of dsQuestions) {
+        allQuestions.push({
+          ...q,
+          id: `${topic}-${qNum}`,
+          topic,
+          imageUrl: batch[qNum % 5]?.imageUrl ?? q.imageUrl,
+          articleUrl: batch[qNum % 5]?.url ?? q.articleUrl,
+          articleRef: articles[qNum]?.id ?? `${topic}-a${qNum}`,
+        });
+        qNum++;
+        qTotal++;
+      }
+
+      console.log(`    batch ${b + 1}/${batchCount} → 5 questions`);
+      if (b < batchCount - 1) await new Promise((r) => setTimeout(r, 300));
     }
-
-    const { inputs } = normalize(articles);
-    console.log(`  Generating "${topic}" quiz...`);
-
-    const dsQuestions = await generateQuiz(inputs, dsKey);
-    const questions = (dsQuestions && dsQuestions.length === 5) ? dsQuestions : fallbackQuiz(inputs);
-
-    results[topic] = { articles, questions: questions.slice(0, 5) };
-    if (dsKey) await new Promise((r) => setTimeout(r, 500));
   }
 
-  const savedArticles: any[] = [];
-  const savedQuestions: QuizQuestionOutput[] = [];
-
-  for (const topic of topics) {
-    const r = results[topic];
-    if (!r) continue;
-    for (const [i, a] of r.articles.entries()) {
-      savedArticles.push({ ...a, id: `${topic}-a${i}` });
-    }
-    for (const [i, q] of r.questions.entries()) {
-      savedQuestions.push({ ...q, id: `${topic}-${i}`, articleRef: `${topic}-a${i}`, imageUrl: r.articles[i]?.urlToImage ?? q.imageUrl, articleUrl: r.articles[i]?.url ?? q.articleUrl });
-    }
-  }
-
-  const path = await saveCollectedData(savedArticles, savedQuestions);
-  console.log(`Saved to ${path}`);
+  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+  const path = await saveCollectedData(allArticles, allQuestions);
+  console.log(
+    `\nSaved ${qTotal} questions, ${allArticles.length} articles in ${elapsed}s → ${path}`,
+  );
 }
+
+// ── file ──
 
 async function runFile(filename: string) {
   const dsKey = process.env.DEEPSEEK_API_KEY;
@@ -253,71 +278,95 @@ async function runFile(filename: string) {
 
   const data = JSON.parse(readFileSync(filePath, "utf-8")) as CollectedDataFile;
 
-  const topicArticles: Record<string, any[]> = {};
+  // Group articles by their topic field
+  const byTopic: Record<string, any[]> = {};
   for (const a of data.rawArticles) {
-    const match = (a.id ?? "").match(/^([a-z]+)-a\d+$/);
-    if (match && TOPICS[match[1]]) {
-      if (!topicArticles[match[1]]) topicArticles[match[1]] = [];
-      topicArticles[match[1]].push(a);
-    }
+    const topic = a.topic || "general";
+    if (!byTopic[topic]) byTopic[topic] = [];
+    byTopic[topic].push(a);
   }
 
-  const activeTopics = Object.keys(topicArticles);
-  if (activeTopics.length === 0) {
-    console.error("Error: no topic-prefixed articles found in file");
-    process.exit(1);
-  }
+  const topics = Object.keys(byTopic);
+  const start = Date.now();
+  console.log(
+    `\nRegenerating from "${filename}": ${data.rawArticles.length} articles across ${topics.length} topics: ${topics.join(", ")}\n`,
+  );
 
-  const savedQuestions: QuizQuestionOutput[] = [];
+  const questions: QuizQuestionOutput[] = [];
 
-  for (const topic of activeTopics) {
-    const articles = topicArticles[topic];
-    if (articles.length < 5) {
-      console.error(`  Not enough articles for "${topic}" (got ${articles.length}), skipping`);
+  for (const topic of topics) {
+    const articles = byTopic[topic];
+    const inputs = articles.map(toInput);
+    const batchCount = Math.floor(inputs.length / 5);
+
+    if (batchCount === 0) {
+      console.log(`  ${topic}: only ${inputs.length} articles, skipping`);
       continue;
     }
 
-    const { inputs } = normalize(articles);
-    console.log(`  Regenerating "${topic}" quiz from ${inputs.length} articles...`);
+    console.log(
+      `  ${topic}: ${inputs.length} articles → ${batchCount} batches`,
+    );
+    let qNum = 0;
 
-    const dsQuestions = await generateQuiz(inputs, dsKey);
-    if (!dsQuestions || dsQuestions.length < 5) {
-      console.error(`  DeepSeek returned insufficient questions for "${topic}", skipping`);
-      continue;
-    }
+    for (let b = 0; b < batchCount; b++) {
+      const batch = inputs.slice(b * 5, b * 5 + 5);
+      const dsQuestions = await generateQuiz(batch, dsKey);
 
-    const tagged = dsQuestions.slice(0, 5).map((q, i) => ({
-      ...q,
-      id: `${topic}-${i}`,
-      imageUrl: inputs[i]?.imageUrl,
-      articleUrl: inputs[i]?.url,
-      articleRef: `${topic}-a${parseInt(q.id.split("-")[1] ?? "0", 10)}`,
-    }));
+      for (const q of dsQuestions) {
+        questions.push({
+          ...q,
+          id: `${topic}-${qNum}`,
+          topic,
+          imageUrl: inputs[qNum]?.imageUrl ?? q.imageUrl,
+          articleUrl: articles[qNum]?.url ?? q.articleUrl,
+          articleRef: articles[qNum]?.id ?? `${topic}-a${qNum}`,
+        });
+        qNum++;
+      }
 
-    savedQuestions.push(...tagged);
-    await new Promise((r) => setTimeout(r, 500));
-  }
-
-  // Build "all" topic from other topics
-  const allQuestions: QuizQuestionOutput[] = [];
-  for (const topic of activeTopics) {
-    const qs = savedQuestions.filter((q) => q.id.startsWith(`${topic}-`));
-    if (qs.length > 0 && allQuestions.length < 5) {
-      allQuestions.push({ ...qs[0], id: `all-${allQuestions.length}` });
+      console.log(`    batch ${b + 1}/${batchCount} → 5 questions`);
+      if (b < batchCount - 1) await new Promise((r) => setTimeout(r, 300));
     }
   }
 
-  const path = await saveCollectedData(data.rawArticles, [...savedQuestions, ...allQuestions]);
-  console.log(`Saved to ${path}`);
+  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+  const path = await saveCollectedData(data.rawArticles, questions);
+  console.log(`\nSaved ${questions.length} questions in ${elapsed}s → ${path}`);
+}
+
+// ── main ──
+
+function parseArgs(
+  argv: string[],
+): { mode: "fresh" } | { mode: "file"; file: string } | null {
+  let fresh = false;
+  let file: string | undefined;
+  for (let i = 2; i < argv.length; i++) {
+    if (argv[i] === "--fresh") fresh = true;
+    else if (argv[i] === "--file" && i + 1 < argv.length) file = argv[++i];
+    else {
+      console.error(`Unknown argument: ${argv[i]}`);
+      return null;
+    }
+  }
+  if (fresh) return { mode: "fresh" };
+  if (file) return { mode: "file", file };
+  return null;
 }
 
 async function main() {
   loadEnvFile();
   const args = parseArgs(process.argv);
-  if (!args) { console.log(USAGE); process.exit(1); }
-
+  if (!args) {
+    console.log(USAGE);
+    process.exit(1);
+  }
   if (args.mode === "fresh") await runFresh();
   else await runFile(args.file);
 }
 
-main().catch((err) => { console.error("Fatal error:", err); process.exit(1); });
+main().catch((err) => {
+  console.error("Fatal error:", err);
+  process.exit(1);
+});

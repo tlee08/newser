@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 export type QuizQuestionOutput = {
   id: string;
+  topic: string;
   prompt: string;
   correctAnswerIndex: number;
   options: string[];
@@ -18,6 +19,7 @@ export type CollectedDataFile = {
   source: { country: string | null; articleCount: number };
   rawArticles: {
     id: string;
+    topic: string;
     title: string;
     description: string;
     url: string;
@@ -55,10 +57,10 @@ export function loadQuizFile(source?: string): Record<string, QuizQuestionOutput
   const result: Record<string, QuizQuestionOutput[]> = { all: data.quizQuestions };
 
   for (const q of data.quizQuestions) {
-    const prefix = q.id.split("-")[0];
-    if (prefix && prefix !== "all") {
-      if (!result[prefix]) result[prefix] = [];
-      if (result[prefix].length < 5) result[prefix].push(q);
+    const topic = q.topic;
+    if (topic && topic !== "all") {
+      if (!result[topic]) result[topic] = [];
+      if (result[topic].length < 5) result[topic].push(q);
     }
   }
 
@@ -90,6 +92,7 @@ export async function saveCollectedData(
     source: { country: null, articleCount: rawArticles.length },
     rawArticles: rawArticles.map((a: any, i: number) => ({
       id: a.id ?? `a-${i}`,
+      topic: a.topic ?? "general",
       title: a.title ?? "Untitled",
       description: a.description ?? "",
       url: a.url ?? "#",
