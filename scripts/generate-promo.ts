@@ -6,7 +6,7 @@ import "dotenv/config";
 import {
   type CollectedDataFile,
   type QuizQuestionOutput,
-} from "../lib/pipeline";
+} from "../lib/types";
 
 const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
 const PROMO_DIR = join(

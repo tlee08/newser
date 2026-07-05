@@ -5,12 +5,25 @@ import "dotenv/config";
 import {
   type CollectedDataFile,
   type QuizQuestionOutput,
-} from "../lib/pipeline";
+} from "../lib/types";
 
 const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
 
+type RawArticle = {
+  id: string;
+  topic: string;
+  title: string;
+  description?: string;
+  url: string;
+  urlToImage?: string;
+  source?: { name?: string } | string;
+  publishedAt?: string;
+};
+
+type SavedArticle = CollectedDataFile["rawArticles"][number];
+
 async function saveCollectedData(
-  rawArticles: any[],
+  rawArticles: (RawArticle | SavedArticle)[],
   quizQuestions: QuizQuestionOutput[],
 ): Promise<string> {
   const now = new Date();
@@ -20,14 +33,14 @@ async function saveCollectedData(
   const data: CollectedDataFile = {
     timestamp: now.toISOString(),
     source: { country: null, articleCount: rawArticles.length },
-    rawArticles: rawArticles.map((a: any) => ({
-      id: a.id ?? "?",
-      topic: a.topic ?? "general",
-      title: a.title ?? "Untitled",
+    rawArticles: rawArticles.map((a): SavedArticle => ({
+      id: a.id,
+      topic: "topic" in a ? (a.topic ?? "general") : "general",
+      title: a.title,
       description: a.description ?? "",
-      url: a.url ?? "#",
-      source: typeof a.source === "object" ? (a.source?.name ?? "Unknown") : String(a.source ?? "Unknown"),
-      imageUrl: a.imageUrl ?? a.urlToImage,
+      url: a.url,
+      source: typeof a.source === "object" && a.source !== null ? (a.source.name ?? "Unknown") : String(a.source ?? "Unknown"),
+      imageUrl: "urlToImage" in a ? a.urlToImage : (a as any).imageUrl,
       publishedAt: a.publishedAt,
     })),
     quizQuestions: quizQuestions.map((q) => ({ ...q, articleRef: q.articleRef ?? "" })) as CollectedDataFile["quizQuestions"],
@@ -36,6 +49,30 @@ async function saveCollectedData(
   const filePath = join(DATA_DIR, `${stamp}.json`);
   await writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
   return filePath;
+}
+
+const QUIZ_JSON = join(import.meta.dirname, "..", "public", "quizzes.json");
+
+async function writeQuizJson(allQuestions: QuizQuestionOutput[]) {
+  const grouped: Record<string, QuizQuestionOutput[]> = {};
+
+  for (const q of allQuestions) {
+    const topic = q.topic;
+    if (topic) {
+      if (!grouped[topic]) grouped[topic] = [];
+      if (grouped[topic].length < 5) grouped[topic].push(q);
+    }
+  }
+
+  grouped.all = [];
+  for (const topic of Object.keys(grouped).filter((k) => k !== "all")) {
+    if (grouped[topic].length > 0 && grouped.all.length < 5) {
+      grouped.all.push({ ...grouped[topic][0], id: `all-${grouped.all.length}` });
+    }
+  }
+
+  await writeFile(QUIZ_JSON, JSON.stringify({ quizzes: grouped }), "utf-8");
+  console.log(`Wrote quizzes.json (${Object.values(grouped).reduce((s, qs) => s + qs.length, 0)} questions)`);
 }
 
 const USAGE = `Usage:
@@ -59,17 +96,6 @@ const TOPICS = [
 ];
 
 // ── NewsAPI ──
-
-type RawArticle = {
-  id: string;
-  topic: string;
-  title: string;
-  description?: string;
-  url: string;
-  urlToImage?: string;
-  source?: { name?: string };
-  publishedAt?: string;
-};
 
 async function fetchNews(
   apiKey: string,
@@ -284,6 +310,7 @@ async function runFresh() {
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
   const path = await saveCollectedData(allArticles, allQuestions);
+  await writeQuizJson(allQuestions);
   console.log(
     `\nSaved ${qTotal} questions, ${allArticles.length} articles in ${elapsed}s → ${path}`,
   );
@@ -360,6 +387,7 @@ async function runFile(filename: string) {
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
   const path = await saveCollectedData(data.rawArticles, questions);
+  await writeQuizJson(questions);
   console.log(`\nSaved ${questions.length} questions in ${elapsed}s → ${path}`);
 }
 
