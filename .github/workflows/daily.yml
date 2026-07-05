@@ -9,6 +9,8 @@ jobs:
   generate-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +41,7 @@ jobs:
         run: |
           git config user.name "newser-bot"
           git config user.email "bot@newser.app"
-          git add public/quizzes.json resources/collected_data/
+          git add public/quizzes.json
           git diff --staged --quiet || git commit -m "chore: daily quiz update [skip ci]"
           git push
 
@@ -54,10 +56,18 @@ jobs:
       - name: Finalise promo images
         run: bash scripts/finalise-promos.sh
 
+      - name: Upload collected data to Cloudflare R2
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: |
+            r2 object put newser-promos/collected_data/ --recursive --file resources/collected_data/
+
       - name: Upload promo images to Cloudflare R2
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: |
-            r2 object put newser-promos/$(date +%Y-%m-%d)/ --recursive --file resources/promotion_images_finalised/
+            r2 object put newser-promos/promotion_images_finalised/ --recursive --file resources/promotion_images_finalised/
