@@ -25,7 +25,7 @@ export default function App() {
   const quizzes = useQuizStore((s) => s.quizzes);
 
   useEffect(() => {
-    fetch("/api/quizzes")
+    fetch("/quizzes.json")
       .then((r) => r.json())
       .then((data: { quizzes: Record<string, QuizQuestion[]> }) => {
         if (data.quizzes) {

@@ -51,10 +51,28 @@ pnpm start
 
 # Quiz generation (once-off; persists to collected_data)
 pnpm generate-quiz --fresh
+pnpm generate-quiz --file <name>
 
 # Promo image generation
-pnpm generate-promo --file <name>  # Render promo images from existing collected data
+pnpm generate-promo --fresh
+pnpm generate-promo --file <name> --index <n>
 ```
+
+## Deployment
+
+See `docs/superpowers/specs/2026-07-06-cloud-deploy.md` for full architecture.
+
+- **Static site**: Vercel (auto-deploys on push to main)
+- **Daily cron**: GitHub Actions (`pnpm generate-quiz --fresh` → commit → Vercel redeploys)
+- **Promo storage**: Cloudflare R2 (images uploaded by cron, zero egress fees)
+
+### Setup required (one-time)
+
+1. **Vercel**: Import repo, framework=Vite, build=`pnpm build`, output=`dist`
+2. **GitHub Secrets**: Add `NEWSAPI_KEY`, `DEEPSEEK_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
+3. **Cloudflare R2**: Create bucket `newser-promos`, generate API token with R2 read/write
+
+`pnpm prebuild` copies the latest collected_data into `public/quizzes.json` which gets baked into the Vite build. The client fetches this static file — no server needed at runtime.
 
 `pnpm dev` starts the Vite dev server. By default it loads the latest quiz data from `resources/collected_data/`, falling back to fresh generation if none exists. Override with `QUIZ_SOURCE`:
 
