@@ -45,6 +45,14 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: daily quiz update [skip ci]"
           git push
 
+      - name: Upload collected data to Cloudflare R2
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: |
+            r2 object put newser-promos/collected_data/ --recursive --file resources/collected_data/
+
       - name: Generate promo images
         run: |
           LATEST=$(ls -t resources/collected_data/*.json | head -1)
@@ -55,14 +63,6 @@ jobs:
 
       - name: Finalise promo images
         run: bash scripts/finalise-promos.sh
-
-      - name: Upload collected data to Cloudflare R2
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: |
-            r2 object put newser-promos/collected_data/ --recursive --file resources/collected_data/
 
       - name: Upload promo images to Cloudflare R2
         uses: cloudflare/wrangler-action@v3
