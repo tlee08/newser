@@ -3,10 +3,7 @@ import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { chromium } from "playwright";
 import "dotenv/config";
-import {
-  type CollectedDataFile,
-  type QuizQuestionOutput,
-} from "../lib/types";
+import { type CollectedDataFile, type QuizQuestionOutput } from "../lib/types";
 
 const DATA_DIR = join(import.meta.dirname, "..", "resources", "collected_data");
 const PROMO_DIR = join(
@@ -99,7 +96,11 @@ const W = 1080;
 const H = 1080;
 
 function esc(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 const ICON_SVG = (size: number) =>
@@ -168,8 +169,10 @@ const STYLES: Record<Style, string> = {
 };
 
 function header(style: Style): string {
-  if (style === "splash") return `<div class="splash-header"><div class="icon-wrap">${ICON_SVG(28)}</div><div class="masthead">Newser</div></div>`;
-  if (style === "classic") return `<div class="icon-wrap">${ICON_SVG(40)}</div>
+  if (style === "splash")
+    return `<div class="splash-header"><div class="icon-wrap">${ICON_SVG(28)}</div><div class="masthead">Newser</div></div>`;
+  if (style === "classic")
+    return `<div class="icon-wrap">${ICON_SVG(40)}</div>
 <div class="kicker">Newser</div>
 <div class="hero-title-text">Daily Briefing Brawl</div>`;
   return `<div class="icon-wrap">${ICON_SVG(40)}</div>
@@ -181,8 +184,12 @@ function header(style: Style): string {
 function questionHtml(q: QuizQuestionOutput, style: Style): string {
   if (style === "splash") return splashQuestionHtml(q);
 
-  const imgBlock = q.imageUrl ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>` : "";
-  const opts = q.options.map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`).join("");
+  const imgBlock = q.imageUrl
+    ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
+    : "";
+  const opts = q.options
+    .map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`)
+    .join("");
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES[style]}</style></head><body>
 <div class="card-wrap">${header(style)}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div><div class="options">${opts}</div></div></div>
@@ -203,9 +210,15 @@ function splashQuestionHtml(q: QuizQuestionOutput): string {
 function answerHtml(q: QuizQuestionOutput, style: Style): string {
   if (style === "splash") return splashAnswerHtml(q);
 
-  const imgBlock = q.imageUrl ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>` : "";
-  const srcUrl = q.articleUrl ? `<div class="source-url">${esc(q.articleUrl)}</div>` : "";
-  const imgUrl = q.imageUrl ? `<div class="source-url">${esc(q.imageUrl)}</div>` : "";
+  const imgBlock = q.imageUrl
+    ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
+    : "";
+  const srcUrl = q.articleUrl
+    ? `<div class="source-url">${esc(q.articleUrl)}</div>`
+    : "";
+  const imgUrl = q.imageUrl
+    ? `<div class="source-url">${esc(q.imageUrl)}</div>`
+    : "";
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES[style]}</style></head><body>
 <div class="card-wrap">${header(style)}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div>
@@ -214,8 +227,12 @@ function answerHtml(q: QuizQuestionOutput, style: Style): string {
 }
 
 function splashAnswerHtml(q: QuizQuestionOutput): string {
-  const srcUrl = q.articleUrl ? `<div class="source-url">${esc(q.articleUrl)}</div>` : "";
-  const imgUrl = q.imageUrl ? `<div class="source-url">${esc(q.imageUrl)}</div>` : "";
+  const srcUrl = q.articleUrl
+    ? `<div class="source-url">${esc(q.articleUrl)}</div>`
+    : "";
+  const imgUrl = q.imageUrl
+    ? `<div class="source-url">${esc(q.imageUrl)}</div>`
+    : "";
 
   if (q.imageUrl) {
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
@@ -238,14 +255,20 @@ async function renderOne(
 
   await mkdir(qDir, { recursive: true });
 
-  const context = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
+  const context = await browser.newContext({
+    viewport: { width: W, height: H },
+    deviceScaleFactor: 2,
+  });
   const page = await context.newPage();
 
   for (const st of styles) {
     for (const variant of ["question", "answer"] as const) {
       const name = `${st}-${variant}`;
       const outPath = join(qDir, `${name}.png`);
-      const html = variant === "question" ? questionHtml(question, st) : answerHtml(question, st);
+      const html =
+        variant === "question"
+          ? questionHtml(question, st)
+          : answerHtml(question, st);
       try {
         await page.setContent(html, { waitUntil: "networkidle" });
         await page.waitForSelector("body.fonts-loaded", { timeout: 10000 });

@@ -54,6 +54,7 @@ Deploy Newser as a zero-cost cloud pipeline: daily quiz generation via cron, sta
 ## Data Flow
 
 ### Build time (cron or manual)
+
 ```
 collected_data/<ts>.json
   → loadQuizFile()
@@ -63,6 +64,7 @@ collected_data/<ts>.json
 ```
 
 ### Client runtime
+
 ```
 fetch("/quizzes.json")
   → zustand store
@@ -71,30 +73,33 @@ fetch("/quizzes.json")
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `scripts/copy-quiz-for-build.ts` | **New**: reads collected_data → writes public/quizzes.json |
-| `public/quizzes.json` | **New**: tracked in git, compiled quiz data |
-| `src/App.tsx` | **Modify**: fetch `/quizzes.json` instead of `/api/quizzes` |
-| `package.json` | **Modify**: add `prebuild` script |
-| `.github/workflows/daily.yml` | **New**: cron workflow |
-| `.gitignore` | **No change**: `resources/` already ignored, `public/` stays tracked |
-| `AGENTS.md`, `README.md` | **Modify**: document deployment |
+| File                             | Change                                                               |
+| -------------------------------- | -------------------------------------------------------------------- |
+| `scripts/copy-quiz-for-build.ts` | **New**: reads collected_data → writes public/quizzes.json           |
+| `public/quizzes.json`            | **New**: tracked in git, compiled quiz data                          |
+| `src/App.tsx`                    | **Modify**: fetch `/quizzes.json` instead of `/api/quizzes`          |
+| `package.json`                   | **Modify**: add `prebuild` script                                    |
+| `.github/workflows/daily.yml`    | **New**: cron workflow                                               |
+| `.gitignore`                     | **No change**: `resources/` already ignored, `public/` stays tracked |
+| `AGENTS.md`, `README.md`         | **Modify**: document deployment                                      |
 
 ## User Setup Steps
 
 ### Vercel
+
 1. Sign up at vercel.com (free GitHub login)
 2. Import repo: `your-username/newser`
 3. Framework: Vite, Build: `pnpm build`, Output: `dist`
 4. Done. Site live at `newser.vercel.app`
 
 ### GitHub Actions
+
 1. Go to repo Settings → Secrets and variables → Actions
 2. Add secrets: `NEWSAPI_KEY`, `DEEPSEEK_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 3. Push workflow file — cron activates automatically
 
 ### Cloudflare R2
+
 1. Sign up at cloudflare.com (free)
 2. Create R2 bucket `newser-promos`
 3. Generate R2 API token (S3-compatible): `R2_ACCESS_KEY_ID` + `R2_SECRET_ACCESS_KEY`

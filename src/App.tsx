@@ -12,7 +12,12 @@ import { Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import { QuestionCard } from "./components/QuestionCard";
 import { ScoreScreen } from "./components/ScoreScreen";
-import { useQuizStore, TOPIC_IDS, TOPIC_LABELS, type TopicId } from "./services/quizStore";
+import {
+  useQuizStore,
+  TOPIC_IDS,
+  TOPIC_LABELS,
+  type TopicId,
+} from "./services/quizStore";
 import type { QuizQuestion } from "./types/news";
 
 type FetchState = "loading" | "ready" | "error";
@@ -56,7 +61,9 @@ export default function App() {
       <main className="app-shell">
         <Container size="lg" py="xl">
           <Stack align="center" mt="xl">
-            <Text fw={800} size="lg">Could not load quizzes. Try again later.</Text>
+            <Text fw={800} size="lg">
+              Could not load quizzes. Try again later.
+            </Text>
           </Stack>
         </Container>
       </main>
@@ -72,11 +79,14 @@ export default function App() {
           <header className="app-header">
             <Group gap="xs" justify="center">
               <Newspaper size={22} />
-              <Text fw={900} tt="uppercase" className="kicker">Newser</Text>
+              <Text fw={900} tt="uppercase" className="kicker">
+                Newser
+              </Text>
             </Group>
             <Title className="hero-title">Daily Briefing Brawl</Title>
             <Text className="hero-copy">
-              Five headlines enter. One reader leaves mildly informed and overconfident.
+              Five headlines enter. One reader leaves mildly informed and
+              overconfident.
             </Text>
           </header>
 
@@ -121,7 +131,11 @@ function TopicTabs({
             size="sm"
             onClick={() => onChange(id)}
             rightSection={
-              <Badge size="sm" color={isActive ? "pink" : "dark"} variant="light">
+              <Badge
+                size="sm"
+                color={isActive ? "pink" : "dark"}
+                variant="light"
+              >
                 {answeredCount}/{total}
               </Badge>
             }
@@ -147,7 +161,9 @@ function TopicQuiz({ topic }: { topic: TopicId }) {
 
   if (!questions || questions.length === 0) {
     return (
-      <Text ta="center" c="dark.3">No questions available for this topic.</Text>
+      <Text ta="center" c="dark.3">
+        No questions available for this topic.
+      </Text>
     );
   }
 

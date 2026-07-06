@@ -86,18 +86,18 @@ GET /api/quizzes → { quizzes: Record<string, QuizQuestion[]> }
 
 ### Aspect Ratios (2)
 
-| Name | Dimensions | Target Platform |
-|------|-----------|-----------------|
-| `square` | 1080×1080 | Instagram feed, Facebook |
-| `portrait` | 1080×1920 | Instagram Stories, TikTok |
+| Name       | Dimensions | Target Platform           |
+| ---------- | ---------- | ------------------------- |
+| `square`   | 1080×1080  | Instagram feed, Facebook  |
+| `portrait` | 1080×1920  | Instagram Stories, TikTok |
 
 ### Visual Styles (3)
 
-| Name | Aesthetic |
-|------|-----------|
+| Name      | Aesthetic                                                                                          |
+| --------- | -------------------------------------------------------------------------------------------------- |
 | `classic` | Tabloid-trivia: yellow field, black borders, pink accents, chunky card with shadow, Newspaper icon |
-| `hero` | Larger variant: "Newser" + "Daily Briefing Brawl" subtitle, bigger icon/text, dramatic card |
-| `compact` | Tighter layout: smaller card/typography, condensed, same yellow palette |
+| `hero`    | Larger variant: "Newser" + "Daily Briefing Brawl" subtitle, bigger icon/text, dramatic card        |
+| `compact` | Tighter layout: smaller card/typography, condensed, same yellow palette                            |
 
 **Total: 2 ratios × 3 styles = 6 PNGs per question**
 

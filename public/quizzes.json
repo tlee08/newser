@@ -1,1 +1,486 @@
-{"quizzes":{"general":[{"id":"general-0","topic":"general","prompt":"What natural disaster gate-crashed Philly's Fourth of July party, forcing concertgoers to flee the Ben Franklin Parkway?","correctAnswerIndex":1,"options":["An unexpected visit from Taylor Swift's security team","Severe storms","A surprise alien invasion","A firework malfunction that turned the skyline into a volcano"],"summary":"Severe storms delayed Philadelphia's Fourth of July celebration, forcing evacuations before it resumed after midnight.","imageUrl":"https://cdn.abcotvs.com/dip/images/19449759_070426-wpvi-philly-concert-evacuation-notice-AP-16x9-img.png?w=1600","articleUrl":"https://6abc.com/post/july-4th-concertgoers-evacuated-ben-franklin-parkway-due-storms/19449629/","articleRef":"general-a0"},{"id":"general-1","topic":"general","prompt":"Which former president showed up to the National Mall for a speech, after weather had already disrupted the 4th July celebrations?","correctAnswerIndex":0,"options":["Donald Trump","George Washington reincarnated","Joe Biden with a sparkler","Barack Obama in a beach hat"],"summary":"Donald Trump arrived at the National Mall for a speech, after bad weather delayed the celebratory rally in Washington.","imageUrl":"https://ichef.bbci.co.uk/ace/branded_news/1200/cpsprodpb/a60f/live/fa932570-7820-11f1-b976-0b9c15b0ccfc.jpg","articleUrl":"https://www.bbc.com/news/live/c20y3rzq0w1t","articleRef":"general-a1"},{"id":"general-2","topic":"general","prompt":"What was happening at Taylor Swift's Rhode Island estate while fireworks boomed on July 4th?","correctAnswerIndex":2,"options":["She was hosting a secret Kanye West diss track listening party","A squad reunion with Ed Sheeran and a llama","The lights were on","She was writing a song about the neighbor's cat"],"summary":"Taylor Swift's Rhode Island house had its lights on as fireworks lit up the sky on July 4th.","imageUrl":"https://imagez.tmz.com/image/91/16by9/2026/07/05/918463257bf14f2cac958bec7db5f57f_xl.png","articleUrl":"https://www.tmz.com/2026/07/04/taylor-swift-rhode-island-home-lights-are-on-independence-day-fireworks-go-off/","articleRef":"general-a2"},{"id":"general-3","topic":"general","prompt":"What was the main theme of the July 4th live updates from CBS News?","correctAnswerIndex":2,"options":["A parade float caught fire and became a political statement","Everyone agreed on the best barbecue sauce for once","Severe weather dampened celebrations","Fireworks spelled out the Constitution in cursive"],"summary":"Americans celebrated 250 years of independence, though severe weather dampened proceedings in several parts of the country.","imageUrl":"https://assets3.cbsnewsstatic.com/hub/i/r/2026/07/05/f642d7b0-c159-45c3-93f2-b77be94d0249/thumbnail/1200x630/b19c48d06100652fce4143c1ef2f04a4/gettyimages-2284147275.jpg","articleUrl":"https://www.cbsnews.com/live-updates/july-4th-america-250-birthday/","articleRef":"general-a3"},{"id":"general-4","topic":"general","prompt":"How many World Cup goals does Kylian Mbappé now have, leaving him just one behind Golden Boot rival Lionel Messi?","correctAnswerIndex":0,"options":["19","18 and a half (he got robbed by the ref)","0 (he quit to join a boy band)","20 (already tied with Messi, sorry)"],"summary":"Kylian Mbappé scored his 19th career World Cup goal on a penalty kick, moving within one of record holder Lionel Messi.","imageUrl":"https://dims.apnews.com/dims4/default/91b67e7/2147483647/strip/true/crop/5327x3550+0+1/resize/980x653!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F1c%2Ffe%2F5131a9ef03cfecf358a6247408c1%2F7bb67ed692e14614a83bda8dff677e9b","articleUrl":"https://apnews.com/article/kylian-mbappe-france-world-cup-goal-messi-de578e2297fec01dae610a31ad70dd94","articleRef":"general-a4"}],"tech":[{"id":"tech-0","topic":"tech","prompt":"Nintendo just sent a love letter to its fans! What’s the big message?","correctAnswerIndex":1,"options":["They’re launching a new console tomorrow","They’re pushing for originality","They’re shutting down the Switch eShop","They’re giving away free games"],"summary":"Nintendo shared a message with fans emphasizing its commitment to originality.","imageUrl":"https://nintendoeverything.com/wp-content/uploads/Nintendo-Famitsu-message.webp","articleUrl":"https://nintendoeverything.com/nintendo-shares-a-message-with-fans-pushing-for-originality-and-unique-entertainment-that-only-we-could-produce/","articleRef":"tech-a0"},{"id":"tech-1","topic":"tech","prompt":"Google’s new commercial rewrites history! What document gets an AI makeover?","correctAnswerIndex":2,"options":["A Declaration of Independence written with help from AI","The Bill of Rights","The Declaration of Independence","The Constitution of the United States"],"summary":"A new Google commercial imagines the Declaration of Independence being written with help from AI.","imageUrl":"https://techcrunch.com/wp-content/uploads/2026/07/google-declaration-of-independence.jpg?w=1200","articleUrl":"https://techcrunch.com/2026/07/04/new-google-commercial-imagines-a-declaration-of-independence-written-with-help-from-ai/","articleRef":"tech-a1"},{"id":"tech-2","topic":"tech","prompt":"Dragon Quest 11 S is coming to Switch 2—what juicy specs did Square Enix spill?","correctAnswerIndex":0,"options":["Frame rate and resolution details with two graphical options","A brand new story chapter","Nintendo Switch 2 frame rate and resolution","Exclusive amiibo support"],"summary":"Square Enix revealed Dragon Quest 11 S on Nintendo Switch 2 will have two graphical options with specific frame rate and resolution details.","imageUrl":"https://nintendoeverything.com/wp-content/uploads/Dragon-Quest-11-S-Switch-2-frame-rate-resolution1.webp","articleUrl":"https://nintendoeverything.com/dragon-quest-11-s-nintendo-switch-2-frame-rate-and-resolution/","articleRef":"tech-a2"},{"id":"tech-3","topic":"tech","prompt":"Resident Evil fans, mark your calendars! What’s coming on July 30?","correctAnswerIndex":3,"options":["A Resident Evil board game","A Resident Evil movie premiere","A new Official Resident Evil Release","A new Resident Evil Requiem release"],"summary":"A new Resident Evil Requiem release is confirmed for July 30.","imageUrl":"https://static0.gamerantimages.com/wordpress/wp-content/uploads/2026/06/resident-evil-requiem-amiibo-release-date-1.jpg?w=1600&h=900&fit=crop","articleUrl":"https://gamerant.com/resident-evil-requiem-leon-grace-amiibo-release-date-when/","articleRef":"tech-a3"},{"id":"tech-4","topic":"tech","prompt":"Discs looking scratched? Hackers have a fix! What went open source?","correctAnswerIndex":3,"options":["A new DVD player design","Disk Polishing Goes Open Source","A CD burning software","Disk polishing technology"],"summary":"An open source project for disk polishing was released, aiming to restore scratched optical media.","imageUrl":"https://hackaday.com/wp-content/uploads/2026/07/rgr-ezbuff-feat-e1783113539185.webp","articleUrl":"https://hackaday.com/2026/07/04/disk-polishing-goes-open-source/","articleRef":"tech-a4"}],"business":[{"id":"business-0","topic":"business","prompt":"If you're driving in California and thinking about a DUI, better check your wallet — because your insurance is about to go full Hollywood stuntman. How much do California drivers pay for car insurance after a DUI?","correctAnswerIndex":3,"options":["No hike at all — you're covered","Third-steepest hike in the nation","First-steepest hike in the nation","Second-steepest hike in the nation"],"summary":"California drivers face the nation’s second-steepest car insurance hike after a DUI conviction.","imageUrl":"https://nypost.com/wp-content/uploads/sites/2/2026/07/133303333.jpg?quality=75&strip=all&w=1200","articleUrl":"https://nypost.com/2026/07/04/us-news/the-staggering-cost-california-drivers-pay-for-getting-a-dui/","articleRef":"business-a0"},{"id":"business-1","topic":"business","prompt":"What happens when a heat wave meets a labor dispute? PECO workers said 'We're hot and we're out!' — but what are they striking over?","correctAnswerIndex":1,"options":["Free ice cream during heat waves","Wages and benefits","Shorter work hours for sunbathing","Better air conditioning for the office"],"summary":"The strike centers mainly on wages and benefits, and PECO says it has plans to maintain service.","imageUrl":"https://whyy.org/wp-content/uploads/2026/07/07-04-2026-k-paynter-PECO-strike-6.jpg","articleUrl":"http://whyy.org/articles/peco-workers-strike-july-fourth-philadelphia/","articleRef":"business-a1"},{"id":"business-2","topic":"business","prompt":"A passenger on a virus-stricken cruise ship expected fancy buffets and glacier views — but instead got a plot twist straight out of a disaster movie. How long was the Alaskan voyage?","correctAnswerIndex":1,"options":["30 days","20 days","7 days","14 days"],"summary":"A serial cruiser on a 20-day Alaskan voyage faced stomach-sick passengers and strict disease protocols.","imageUrl":"https://nypost.com/wp-content/uploads/sites/2/2026/07/newspress-collage-f5e3i9wvp-1783203300502.jpg?quality=75&strip=all&1783188955&w=1200","articleUrl":"https://nypost.com/2026/07/04/us-news/passenger-on-virus-stricken-california-cruise-ship-reveals-stunning-details-of-chaotic-high-seas-journey/","articleRef":"business-a2"},{"id":"business-3","topic":"business","prompt":"A 78-year-old man in Tallahassee probably thought he was just getting a Big Mac — but instead ended up in a fiery crash. At what time did this McDonald’s parking lot disaster happen?","correctAnswerIndex":3,"options":["12:34 p.m.","10:15 a.m.","2:01 p.m.","11:49 a.m."],"summary":"A 78-year-old man was killed in a fiery crash at a McDonald’s parking lot around 11:49 a.m. on Saturday.","imageUrl":"https://gray-wctv-prod.gtv-cdn.com/resizer/v2/ULVS3NKSVJAK5HFDJVOVDRPHLI.jpg?auth=28ff7b05619cbaa102c04c97b148a529ff06f97b7a8e0d9b58b505799d8921bc&width=1200&height=600&smart=true","articleUrl":"https://www.wctv.tv/2026/07/04/fhp-78-year-old-man-killed-fiery-crash-mcdonalds-parking-lot-tallahassee/","articleRef":"business-a3"},{"id":"business-4","topic":"business","prompt":"A Denver bartender thought they were just serving drinks — until a couple made a very specific, very potato-based request. What food item did the woman ask about in a strange way?","correctAnswerIndex":3,"options":["A side of fries","A grilled cheese sandwich","A bowl of chili","A baked potato"],"summary":"A Denver couple made a strange food request to a bartender, involving a baked potato.","imageUrl":"https://s.yimg.com/lo/mysterio/api/f4e8c0356d43a45f0fd1ba4c957a21e6110b97e3d42bb29ea0e6c302e691dd7a/lightyear_networkapi/resizefill_w1200;quality_80;format_webp/https:%2F%2Fmedia.zenfs.com%2Fen%2Fthe_big_lead_articles_114%2Fd851efde7b72d2e7e8b9ad536712a18f","articleUrl":"https://www.thebiglead.com/server-strange-order-issue/","articleRef":"business-a4"}],"sports":[{"id":"sports-0","topic":"sports","prompt":"Who played the part of a human fireworks display AND a hero on Independence Day by crushing a walk-off homer for the Astros?","correctAnswerIndex":2,"options":["A firework-shaped mascot named 'Sparky'","A literal bald eagle with a baseball bat","Yordan Alvarez","Casey Legumina (he was just the pitcher who served it up)"],"summary":"Yordan Alvarez hit a two-run walk-off home run in the bottom of the ninth inning to cap the Astros' wild comeback against the Rays.","imageUrl":"https://img.mlbstatic.com/mlb-images/image/upload/t_2x1/t_w1536/mlb/yunnfz0gecnd0fwg86wt.jpg","articleUrl":"https://www.mlb.com/news/yordan-alvarez-hits-2-run-walk-off-home-run-against-rays","articleRef":"sports-a0"},{"id":"sports-1","topic":"sports","prompt":"Which NFL receiver is playing a high-stakes game of 'hard to get' with the Commanders, and might be setting his bridge on fire in the process?","correctAnswerIndex":1,"options":["Terry McLaurin (he's just watching from the sideline with popcorn)","Brandon Aiyuk","A very confused mailman holding a football","Jayden Daniels (he's the one being chased, not the chaser)"],"summary":"Brandon Aiyuk may be burning his bridge to the Commanders by going after Jayden Daniels, suggesting a beef between them.","imageUrl":"https://nbcsports.brightspotcdn.com/dims4/default/4a3a42f/2147483647/strip/true/crop/2700x1519+0+0/resize/1440x810!/quality/90/?url=https%3A%2F%2Fnbc-sports-production-nbc-sports.s3.us-east-1.amazonaws.com%2Fbrightspot%2F27%2F0e%2F8316ec8e4d798a03bccf4a6afe8f%2Fhttps-api-imagn.com%2Frest%2Fdownload%2FimageID%3D24315283","articleUrl":"https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/by-going-after-jayden-daniels-brandon-aiyuk-may-be-burning-his-bridge-to-the-commanders","articleRef":"sports-a1"},{"id":"sports-2","topic":"sports","prompt":"Which England soccer coach said Mexican fans were actually quite nice, despite everyone expecting them to throw tacos at the team bus?","correctAnswerIndex":2,"options":["Gareth Southgate (wrong coach, but he'd probably say something polite too)","The ghost of a disappointed English fan from 1966","Thomas Tuchel","A sombrero-wearing chihuahua with a whistle"],"summary":"Thomas Tuchel dismissed concerns about England's treatment in Mexico, saying it has been 'nicer than I expected' and fans are 'friendly and respectful'.","imageUrl":"https://ichef.bbci.co.uk/ace/branded_sport/1200/cpsprodpb/53e9/live/dde8f140-7800-11f1-b528-69433fdf608f.jpg","articleUrl":"https://www.bbc.com/sport/football/articles/c8r2827pyxlo","articleRef":"sports-a2"},{"id":"sports-3","topic":"sports","prompt":"Who was the rookie that lived up to the hype in his summer league debut, helping the Jazz cool down the Hawks?","correctAnswerIndex":3,"options":["A basketball that somehow learned to dribble itself","A literal jazz musician playing a saxophone on the court","Lauri Markkanen (he was probably watching from a spa)","Darryn Peterson"],"summary":"Darryn Peterson led the Utah Jazz to a win over the Atlanta Hawks in Salt Lake City Summer League action.","imageUrl":"https://www.deseret.com/resizer/v2/NHKTC5RQ6BG57MIYNDPMWZZ4KU.JPG?focal=0%2C0&auth=312badf1746574b6c65679898e477dd380d85faa491318819adc58b627108363&width=630&height=331","articleUrl":"https://www.deseret.com/sports/2026/07/04/darryn-peterson-stars-for-utah-jazz-against-atlanta-hawks-summer-league/","articleRef":"sports-a3"},{"id":"sports-4","topic":"sports","prompt":"Which French superstar scored his 19th World Cup goal and is now breathing down Messi's neck for the Golden Boot record?","correctAnswerIndex":3,"options":["Antoine Griezmann (doing his best, but not quite there)","A very athletic baguette wearing cleats","Lionel Messi (he's the one being chased, not the chaser)","Kylian Mbappé"],"summary":"Kylian Mbappé scored his 19th career World Cup goal on a penalty kick, moving within one of Lionel Messi's record.","imageUrl":"https://dims.apnews.com/dims4/default/91b67e7/2147483647/strip/true/crop/5327x3550+0+1/resize/980x653!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F1c%2Ffe%2F5131a9ef03cfecf358a6247408c1%2F7bb67ed692e14614a83bda8dff677e9b","articleUrl":"https://apnews.com/article/kylian-mbappe-france-world-cup-goal-messi-de578e2297fec01dae610a31ad70dd94","articleRef":"sports-a4"}],"science":[{"id":"science-0","topic":"science","prompt":"What cosmic objects are so huge and weird that even astronomers are like 'uh, our universe model might be broken'?","correctAnswerIndex":1,"options":["The Great Wall and the Cosmic Trench","The Giant Arc and the Big Ring","Two enormous structures — the Giant Arc and the Big Ring","The Milky Way and the Andromeda Galaxy"],"summary":"Two enormous structures, the Giant Arc and the Big Ring, were discovered in the same region of deep space at the same cosmic distance, challenging current cosmological models.","imageUrl":"https://spacedaily.com/wp-content/uploads/2026/07/spacedaily_hubble_deep_field_1995_nasa-1.jpg","articleUrl":"https://spacedaily.com/t-two-enormous-structures-the-giant-arc-and-the-big-ring-appear-in-the-same-region-of-deep-space-at-the-same-cosmic-distance-a-pairing-so-unexpected-that-alexia-lopez-one-of-the-as/","articleRef":"science-a0"},{"id":"science-1","topic":"science","prompt":"What did a 2025 study reveal about dinosaurs just before the asteroid hit?","correctAnswerIndex":0,"options":["They were flourishing","They were in decline","For much of the past century, scientists believed dinosaurs were already in decline when the asteroid struck","They were already gone"],"summary":"A 2025 study published in Science found that dinosaurs were flourishing in diverse, thriving ecosystems in New Mexico just before the asteroid impact 66 million years ago, contradicting the long-held belief they were in decline.","imageUrl":"https://spacedaily.com/wp-content/uploads/2026/07/dinosaurs.jpg","articleUrl":"https://spacedaily.com/t-for-much-of-the-past-century-scientists-believed-dinosaurs-were-already-in-decline-when-the-asteroid-struck-66-million-years-ago-but-a-2025-study-published-in-science-found-fossils-in-new-m/","articleRef":"science-a1"},{"id":"science-2","topic":"science","prompt":"How do you cool a data center in space when there's no air, no water, and no cooling towers?","correctAnswerIndex":2,"options":["Cooling a data centre on Earth can consume 10 to 30 per cent of its energy budget and millions of litres of water","Giant space fans","Vast radiator panels bleeding heat as infrared light","Laser cooling beams"],"summary":"In orbit, data centers must use vast radiator panels to bleed waste heat away as infrared light, since there is no air or water available for traditional cooling methods.","imageUrl":"https://spacedaily.com/wp-content/uploads/2026/07/datacentre.jpg","articleUrl":"https://spacedaily.com/t-cooling-a-data-centre-on-earth-can-consume-10-to-30-per-cent-of-its-energy-budget-and-millions-of-litres-of-water-in-orbit-there-is-no-air-no-cooling-towers-and-no-river-to-dump-heat-into/","articleRef":"science-a2"},{"id":"science-3","topic":"science","prompt":"Voyager 1 is still sending data from interstellar space—what powers this little champ that launched in 1977?","correctAnswerIndex":0,"options":["A nuclear power source the size of a car battery","The Voyager 1 probe, launched in 1977, is now so far from Earth that a radio signal takes over 22 hours to reach it","A hamster wheel","A solar panel the size of a football field"],"summary":"Voyager 1 is powered by a nuclear power source the size of a car battery and is still sending data from interstellar space, despite being over 22 light-hours away from Earth.","imageUrl":"https://spacedaily.com/wp-content/uploads/2026/07/voyagerprobe.jpg","articleUrl":"https://spacedaily.com/t-the-voyager-1-probe-launched-in-1977-is-now-so-far-from-earth-that-a-radio-signal-travelling-at-the-speed-of-light-takes-over-22-hours-to-reach-it-and-it-is-still-sending-data-back-from-interstella/","articleRef":"science-a3"},{"id":"science-4","topic":"science","prompt":"How many new genetic locations linked to anxiety did a massive study of 700,000 people uncover?","correctAnswerIndex":2,"options":["All 74 were new","A genetic analysis of nearly 700,000 people identified 74 distinct locations in the human genome tied to anxiety","39 new locations","Only 12 new spots"],"summary":"A genetic analysis of nearly 700,000 people identified 74 distinct genome locations tied to anxiety, 39 of which had never been linked to the condition before.","imageUrl":"https://spacedaily.com/wp-content/uploads/2026/07/human-genome-tied-to-anxiety.png","articleUrl":"https://spacedaily.com/n-a-genetic-analysis-of-nearly-700000-people-identified-74-distinct-locations-in-the-human-genome-tied-to-anxiety-39-of-which-had-never-been-linked-to-the-condition-before/","articleRef":"science-a4"}],"all":[{"id":"all-0","topic":"general","prompt":"What natural disaster gate-crashed Philly's Fourth of July party, forcing concertgoers to flee the Ben Franklin Parkway?","correctAnswerIndex":1,"options":["An unexpected visit from Taylor Swift's security team","Severe storms","A surprise alien invasion","A firework malfunction that turned the skyline into a volcano"],"summary":"Severe storms delayed Philadelphia's Fourth of July celebration, forcing evacuations before it resumed after midnight.","imageUrl":"https://cdn.abcotvs.com/dip/images/19449759_070426-wpvi-philly-concert-evacuation-notice-AP-16x9-img.png?w=1600","articleUrl":"https://6abc.com/post/july-4th-concertgoers-evacuated-ben-franklin-parkway-due-storms/19449629/","articleRef":"general-a0"},{"id":"all-1","topic":"tech","prompt":"Nintendo just sent a love letter to its fans! What’s the big message?","correctAnswerIndex":1,"options":["They’re launching a new console tomorrow","They’re pushing for originality","They’re shutting down the Switch eShop","They’re giving away free games"],"summary":"Nintendo shared a message with fans emphasizing its commitment to originality.","imageUrl":"https://nintendoeverything.com/wp-content/uploads/Nintendo-Famitsu-message.webp","articleUrl":"https://nintendoeverything.com/nintendo-shares-a-message-with-fans-pushing-for-originality-and-unique-entertainment-that-only-we-could-produce/","articleRef":"tech-a0"},{"id":"all-2","topic":"business","prompt":"If you're driving in California and thinking about a DUI, better check your wallet — because your insurance is about to go full Hollywood stuntman. How much do California drivers pay for car insurance after a DUI?","correctAnswerIndex":3,"options":["No hike at all — you're covered","Third-steepest hike in the nation","First-steepest hike in the nation","Second-steepest hike in the nation"],"summary":"California drivers face the nation’s second-steepest car insurance hike after a DUI conviction.","imageUrl":"https://nypost.com/wp-content/uploads/sites/2/2026/07/133303333.jpg?quality=75&strip=all&w=1200","articleUrl":"https://nypost.com/2026/07/04/us-news/the-staggering-cost-california-drivers-pay-for-getting-a-dui/","articleRef":"business-a0"},{"id":"all-3","topic":"sports","prompt":"Who played the part of a human fireworks display AND a hero on Independence Day by crushing a walk-off homer for the Astros?","correctAnswerIndex":2,"options":["A firework-shaped mascot named 'Sparky'","A literal bald eagle with a baseball bat","Yordan Alvarez","Casey Legumina (he was just the pitcher who served it up)"],"summary":"Yordan Alvarez hit a two-run walk-off home run in the bottom of the ninth inning to cap the Astros' wild comeback against the Rays.","imageUrl":"https://img.mlbstatic.com/mlb-images/image/upload/t_2x1/t_w1536/mlb/yunnfz0gecnd0fwg86wt.jpg","articleUrl":"https://www.mlb.com/news/yordan-alvarez-hits-2-run-walk-off-home-run-against-rays","articleRef":"sports-a0"},{"id":"all-4","topic":"science","prompt":"What cosmic objects are so huge and weird that even astronomers are like 'uh, our universe model might be broken'?","correctAnswerIndex":1,"options":["The Great Wall and the Cosmic Trench","The Giant Arc and the Big Ring","Two enormous structures — the Giant Arc and the Big Ring","The Milky Way and the Andromeda Galaxy"],"summary":"Two enormous structures, the Giant Arc and the Big Ring, were discovered in the same region of deep space at the same cosmic distance, challenging current cosmological models.","imageUrl":"https://spacedaily.com/wp-content/uploads/2026/07/spacedaily_hubble_deep_field_1995_nasa-1.jpg","articleUrl":"https://spacedaily.com/t-two-enormous-structures-the-giant-arc-and-the-big-ring-appear-in-the-same-region-of-deep-space-at-the-same-cosmic-distance-a-pairing-so-unexpected-that-alexia-lopez-one-of-the-as/","articleRef":"science-a0"}]}}
+{
+  "quizzes": {
+    "general": [
+      {
+        "id": "general-0",
+        "topic": "general",
+        "prompt": "What natural disaster gate-crashed Philly's Fourth of July party, forcing concertgoers to flee the Ben Franklin Parkway?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "An unexpected visit from Taylor Swift's security team",
+          "Severe storms",
+          "A surprise alien invasion",
+          "A firework malfunction that turned the skyline into a volcano"
+        ],
+        "summary": "Severe storms delayed Philadelphia's Fourth of July celebration, forcing evacuations before it resumed after midnight.",
+        "imageUrl": "https://cdn.abcotvs.com/dip/images/19449759_070426-wpvi-philly-concert-evacuation-notice-AP-16x9-img.png?w=1600",
+        "articleUrl": "https://6abc.com/post/july-4th-concertgoers-evacuated-ben-franklin-parkway-due-storms/19449629/",
+        "articleRef": "general-a0"
+      },
+      {
+        "id": "general-1",
+        "topic": "general",
+        "prompt": "Which former president showed up to the National Mall for a speech, after weather had already disrupted the 4th July celebrations?",
+        "correctAnswerIndex": 0,
+        "options": [
+          "Donald Trump",
+          "George Washington reincarnated",
+          "Joe Biden with a sparkler",
+          "Barack Obama in a beach hat"
+        ],
+        "summary": "Donald Trump arrived at the National Mall for a speech, after bad weather delayed the celebratory rally in Washington.",
+        "imageUrl": "https://ichef.bbci.co.uk/ace/branded_news/1200/cpsprodpb/a60f/live/fa932570-7820-11f1-b976-0b9c15b0ccfc.jpg",
+        "articleUrl": "https://www.bbc.com/news/live/c20y3rzq0w1t",
+        "articleRef": "general-a1"
+      },
+      {
+        "id": "general-2",
+        "topic": "general",
+        "prompt": "What was happening at Taylor Swift's Rhode Island estate while fireworks boomed on July 4th?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "She was hosting a secret Kanye West diss track listening party",
+          "A squad reunion with Ed Sheeran and a llama",
+          "The lights were on",
+          "She was writing a song about the neighbor's cat"
+        ],
+        "summary": "Taylor Swift's Rhode Island house had its lights on as fireworks lit up the sky on July 4th.",
+        "imageUrl": "https://imagez.tmz.com/image/91/16by9/2026/07/05/918463257bf14f2cac958bec7db5f57f_xl.png",
+        "articleUrl": "https://www.tmz.com/2026/07/04/taylor-swift-rhode-island-home-lights-are-on-independence-day-fireworks-go-off/",
+        "articleRef": "general-a2"
+      },
+      {
+        "id": "general-3",
+        "topic": "general",
+        "prompt": "What was the main theme of the July 4th live updates from CBS News?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "A parade float caught fire and became a political statement",
+          "Everyone agreed on the best barbecue sauce for once",
+          "Severe weather dampened celebrations",
+          "Fireworks spelled out the Constitution in cursive"
+        ],
+        "summary": "Americans celebrated 250 years of independence, though severe weather dampened proceedings in several parts of the country.",
+        "imageUrl": "https://assets3.cbsnewsstatic.com/hub/i/r/2026/07/05/f642d7b0-c159-45c3-93f2-b77be94d0249/thumbnail/1200x630/b19c48d06100652fce4143c1ef2f04a4/gettyimages-2284147275.jpg",
+        "articleUrl": "https://www.cbsnews.com/live-updates/july-4th-america-250-birthday/",
+        "articleRef": "general-a3"
+      },
+      {
+        "id": "general-4",
+        "topic": "general",
+        "prompt": "How many World Cup goals does Kylian Mbappé now have, leaving him just one behind Golden Boot rival Lionel Messi?",
+        "correctAnswerIndex": 0,
+        "options": [
+          "19",
+          "18 and a half (he got robbed by the ref)",
+          "0 (he quit to join a boy band)",
+          "20 (already tied with Messi, sorry)"
+        ],
+        "summary": "Kylian Mbappé scored his 19th career World Cup goal on a penalty kick, moving within one of record holder Lionel Messi.",
+        "imageUrl": "https://dims.apnews.com/dims4/default/91b67e7/2147483647/strip/true/crop/5327x3550+0+1/resize/980x653!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F1c%2Ffe%2F5131a9ef03cfecf358a6247408c1%2F7bb67ed692e14614a83bda8dff677e9b",
+        "articleUrl": "https://apnews.com/article/kylian-mbappe-france-world-cup-goal-messi-de578e2297fec01dae610a31ad70dd94",
+        "articleRef": "general-a4"
+      }
+    ],
+    "tech": [
+      {
+        "id": "tech-0",
+        "topic": "tech",
+        "prompt": "Nintendo just sent a love letter to its fans! What’s the big message?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "They’re launching a new console tomorrow",
+          "They’re pushing for originality",
+          "They’re shutting down the Switch eShop",
+          "They’re giving away free games"
+        ],
+        "summary": "Nintendo shared a message with fans emphasizing its commitment to originality.",
+        "imageUrl": "https://nintendoeverything.com/wp-content/uploads/Nintendo-Famitsu-message.webp",
+        "articleUrl": "https://nintendoeverything.com/nintendo-shares-a-message-with-fans-pushing-for-originality-and-unique-entertainment-that-only-we-could-produce/",
+        "articleRef": "tech-a0"
+      },
+      {
+        "id": "tech-1",
+        "topic": "tech",
+        "prompt": "Google’s new commercial rewrites history! What document gets an AI makeover?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "A Declaration of Independence written with help from AI",
+          "The Bill of Rights",
+          "The Declaration of Independence",
+          "The Constitution of the United States"
+        ],
+        "summary": "A new Google commercial imagines the Declaration of Independence being written with help from AI.",
+        "imageUrl": "https://techcrunch.com/wp-content/uploads/2026/07/google-declaration-of-independence.jpg?w=1200",
+        "articleUrl": "https://techcrunch.com/2026/07/04/new-google-commercial-imagines-a-declaration-of-independence-written-with-help-from-ai/",
+        "articleRef": "tech-a1"
+      },
+      {
+        "id": "tech-2",
+        "topic": "tech",
+        "prompt": "Dragon Quest 11 S is coming to Switch 2—what juicy specs did Square Enix spill?",
+        "correctAnswerIndex": 0,
+        "options": [
+          "Frame rate and resolution details with two graphical options",
+          "A brand new story chapter",
+          "Nintendo Switch 2 frame rate and resolution",
+          "Exclusive amiibo support"
+        ],
+        "summary": "Square Enix revealed Dragon Quest 11 S on Nintendo Switch 2 will have two graphical options with specific frame rate and resolution details.",
+        "imageUrl": "https://nintendoeverything.com/wp-content/uploads/Dragon-Quest-11-S-Switch-2-frame-rate-resolution1.webp",
+        "articleUrl": "https://nintendoeverything.com/dragon-quest-11-s-nintendo-switch-2-frame-rate-and-resolution/",
+        "articleRef": "tech-a2"
+      },
+      {
+        "id": "tech-3",
+        "topic": "tech",
+        "prompt": "Resident Evil fans, mark your calendars! What’s coming on July 30?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "A Resident Evil board game",
+          "A Resident Evil movie premiere",
+          "A new Official Resident Evil Release",
+          "A new Resident Evil Requiem release"
+        ],
+        "summary": "A new Resident Evil Requiem release is confirmed for July 30.",
+        "imageUrl": "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2026/06/resident-evil-requiem-amiibo-release-date-1.jpg?w=1600&h=900&fit=crop",
+        "articleUrl": "https://gamerant.com/resident-evil-requiem-leon-grace-amiibo-release-date-when/",
+        "articleRef": "tech-a3"
+      },
+      {
+        "id": "tech-4",
+        "topic": "tech",
+        "prompt": "Discs looking scratched? Hackers have a fix! What went open source?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "A new DVD player design",
+          "Disk Polishing Goes Open Source",
+          "A CD burning software",
+          "Disk polishing technology"
+        ],
+        "summary": "An open source project for disk polishing was released, aiming to restore scratched optical media.",
+        "imageUrl": "https://hackaday.com/wp-content/uploads/2026/07/rgr-ezbuff-feat-e1783113539185.webp",
+        "articleUrl": "https://hackaday.com/2026/07/04/disk-polishing-goes-open-source/",
+        "articleRef": "tech-a4"
+      }
+    ],
+    "business": [
+      {
+        "id": "business-0",
+        "topic": "business",
+        "prompt": "If you're driving in California and thinking about a DUI, better check your wallet — because your insurance is about to go full Hollywood stuntman. How much do California drivers pay for car insurance after a DUI?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "No hike at all — you're covered",
+          "Third-steepest hike in the nation",
+          "First-steepest hike in the nation",
+          "Second-steepest hike in the nation"
+        ],
+        "summary": "California drivers face the nation’s second-steepest car insurance hike after a DUI conviction.",
+        "imageUrl": "https://nypost.com/wp-content/uploads/sites/2/2026/07/133303333.jpg?quality=75&strip=all&w=1200",
+        "articleUrl": "https://nypost.com/2026/07/04/us-news/the-staggering-cost-california-drivers-pay-for-getting-a-dui/",
+        "articleRef": "business-a0"
+      },
+      {
+        "id": "business-1",
+        "topic": "business",
+        "prompt": "What happens when a heat wave meets a labor dispute? PECO workers said 'We're hot and we're out!' — but what are they striking over?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "Free ice cream during heat waves",
+          "Wages and benefits",
+          "Shorter work hours for sunbathing",
+          "Better air conditioning for the office"
+        ],
+        "summary": "The strike centers mainly on wages and benefits, and PECO says it has plans to maintain service.",
+        "imageUrl": "https://whyy.org/wp-content/uploads/2026/07/07-04-2026-k-paynter-PECO-strike-6.jpg",
+        "articleUrl": "http://whyy.org/articles/peco-workers-strike-july-fourth-philadelphia/",
+        "articleRef": "business-a1"
+      },
+      {
+        "id": "business-2",
+        "topic": "business",
+        "prompt": "A passenger on a virus-stricken cruise ship expected fancy buffets and glacier views — but instead got a plot twist straight out of a disaster movie. How long was the Alaskan voyage?",
+        "correctAnswerIndex": 1,
+        "options": ["30 days", "20 days", "7 days", "14 days"],
+        "summary": "A serial cruiser on a 20-day Alaskan voyage faced stomach-sick passengers and strict disease protocols.",
+        "imageUrl": "https://nypost.com/wp-content/uploads/sites/2/2026/07/newspress-collage-f5e3i9wvp-1783203300502.jpg?quality=75&strip=all&1783188955&w=1200",
+        "articleUrl": "https://nypost.com/2026/07/04/us-news/passenger-on-virus-stricken-california-cruise-ship-reveals-stunning-details-of-chaotic-high-seas-journey/",
+        "articleRef": "business-a2"
+      },
+      {
+        "id": "business-3",
+        "topic": "business",
+        "prompt": "A 78-year-old man in Tallahassee probably thought he was just getting a Big Mac — but instead ended up in a fiery crash. At what time did this McDonald’s parking lot disaster happen?",
+        "correctAnswerIndex": 3,
+        "options": ["12:34 p.m.", "10:15 a.m.", "2:01 p.m.", "11:49 a.m."],
+        "summary": "A 78-year-old man was killed in a fiery crash at a McDonald’s parking lot around 11:49 a.m. on Saturday.",
+        "imageUrl": "https://gray-wctv-prod.gtv-cdn.com/resizer/v2/ULVS3NKSVJAK5HFDJVOVDRPHLI.jpg?auth=28ff7b05619cbaa102c04c97b148a529ff06f97b7a8e0d9b58b505799d8921bc&width=1200&height=600&smart=true",
+        "articleUrl": "https://www.wctv.tv/2026/07/04/fhp-78-year-old-man-killed-fiery-crash-mcdonalds-parking-lot-tallahassee/",
+        "articleRef": "business-a3"
+      },
+      {
+        "id": "business-4",
+        "topic": "business",
+        "prompt": "A Denver bartender thought they were just serving drinks — until a couple made a very specific, very potato-based request. What food item did the woman ask about in a strange way?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "A side of fries",
+          "A grilled cheese sandwich",
+          "A bowl of chili",
+          "A baked potato"
+        ],
+        "summary": "A Denver couple made a strange food request to a bartender, involving a baked potato.",
+        "imageUrl": "https://s.yimg.com/lo/mysterio/api/f4e8c0356d43a45f0fd1ba4c957a21e6110b97e3d42bb29ea0e6c302e691dd7a/lightyear_networkapi/resizefill_w1200;quality_80;format_webp/https:%2F%2Fmedia.zenfs.com%2Fen%2Fthe_big_lead_articles_114%2Fd851efde7b72d2e7e8b9ad536712a18f",
+        "articleUrl": "https://www.thebiglead.com/server-strange-order-issue/",
+        "articleRef": "business-a4"
+      }
+    ],
+    "sports": [
+      {
+        "id": "sports-0",
+        "topic": "sports",
+        "prompt": "Who played the part of a human fireworks display AND a hero on Independence Day by crushing a walk-off homer for the Astros?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "A firework-shaped mascot named 'Sparky'",
+          "A literal bald eagle with a baseball bat",
+          "Yordan Alvarez",
+          "Casey Legumina (he was just the pitcher who served it up)"
+        ],
+        "summary": "Yordan Alvarez hit a two-run walk-off home run in the bottom of the ninth inning to cap the Astros' wild comeback against the Rays.",
+        "imageUrl": "https://img.mlbstatic.com/mlb-images/image/upload/t_2x1/t_w1536/mlb/yunnfz0gecnd0fwg86wt.jpg",
+        "articleUrl": "https://www.mlb.com/news/yordan-alvarez-hits-2-run-walk-off-home-run-against-rays",
+        "articleRef": "sports-a0"
+      },
+      {
+        "id": "sports-1",
+        "topic": "sports",
+        "prompt": "Which NFL receiver is playing a high-stakes game of 'hard to get' with the Commanders, and might be setting his bridge on fire in the process?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "Terry McLaurin (he's just watching from the sideline with popcorn)",
+          "Brandon Aiyuk",
+          "A very confused mailman holding a football",
+          "Jayden Daniels (he's the one being chased, not the chaser)"
+        ],
+        "summary": "Brandon Aiyuk may be burning his bridge to the Commanders by going after Jayden Daniels, suggesting a beef between them.",
+        "imageUrl": "https://nbcsports.brightspotcdn.com/dims4/default/4a3a42f/2147483647/strip/true/crop/2700x1519+0+0/resize/1440x810!/quality/90/?url=https%3A%2F%2Fnbc-sports-production-nbc-sports.s3.us-east-1.amazonaws.com%2Fbrightspot%2F27%2F0e%2F8316ec8e4d798a03bccf4a6afe8f%2Fhttps-api-imagn.com%2Frest%2Fdownload%2FimageID%3D24315283",
+        "articleUrl": "https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/by-going-after-jayden-daniels-brandon-aiyuk-may-be-burning-his-bridge-to-the-commanders",
+        "articleRef": "sports-a1"
+      },
+      {
+        "id": "sports-2",
+        "topic": "sports",
+        "prompt": "Which England soccer coach said Mexican fans were actually quite nice, despite everyone expecting them to throw tacos at the team bus?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "Gareth Southgate (wrong coach, but he'd probably say something polite too)",
+          "The ghost of a disappointed English fan from 1966",
+          "Thomas Tuchel",
+          "A sombrero-wearing chihuahua with a whistle"
+        ],
+        "summary": "Thomas Tuchel dismissed concerns about England's treatment in Mexico, saying it has been 'nicer than I expected' and fans are 'friendly and respectful'.",
+        "imageUrl": "https://ichef.bbci.co.uk/ace/branded_sport/1200/cpsprodpb/53e9/live/dde8f140-7800-11f1-b528-69433fdf608f.jpg",
+        "articleUrl": "https://www.bbc.com/sport/football/articles/c8r2827pyxlo",
+        "articleRef": "sports-a2"
+      },
+      {
+        "id": "sports-3",
+        "topic": "sports",
+        "prompt": "Who was the rookie that lived up to the hype in his summer league debut, helping the Jazz cool down the Hawks?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "A basketball that somehow learned to dribble itself",
+          "A literal jazz musician playing a saxophone on the court",
+          "Lauri Markkanen (he was probably watching from a spa)",
+          "Darryn Peterson"
+        ],
+        "summary": "Darryn Peterson led the Utah Jazz to a win over the Atlanta Hawks in Salt Lake City Summer League action.",
+        "imageUrl": "https://www.deseret.com/resizer/v2/NHKTC5RQ6BG57MIYNDPMWZZ4KU.JPG?focal=0%2C0&auth=312badf1746574b6c65679898e477dd380d85faa491318819adc58b627108363&width=630&height=331",
+        "articleUrl": "https://www.deseret.com/sports/2026/07/04/darryn-peterson-stars-for-utah-jazz-against-atlanta-hawks-summer-league/",
+        "articleRef": "sports-a3"
+      },
+      {
+        "id": "sports-4",
+        "topic": "sports",
+        "prompt": "Which French superstar scored his 19th World Cup goal and is now breathing down Messi's neck for the Golden Boot record?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "Antoine Griezmann (doing his best, but not quite there)",
+          "A very athletic baguette wearing cleats",
+          "Lionel Messi (he's the one being chased, not the chaser)",
+          "Kylian Mbappé"
+        ],
+        "summary": "Kylian Mbappé scored his 19th career World Cup goal on a penalty kick, moving within one of Lionel Messi's record.",
+        "imageUrl": "https://dims.apnews.com/dims4/default/91b67e7/2147483647/strip/true/crop/5327x3550+0+1/resize/980x653!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F1c%2Ffe%2F5131a9ef03cfecf358a6247408c1%2F7bb67ed692e14614a83bda8dff677e9b",
+        "articleUrl": "https://apnews.com/article/kylian-mbappe-france-world-cup-goal-messi-de578e2297fec01dae610a31ad70dd94",
+        "articleRef": "sports-a4"
+      }
+    ],
+    "science": [
+      {
+        "id": "science-0",
+        "topic": "science",
+        "prompt": "What cosmic objects are so huge and weird that even astronomers are like 'uh, our universe model might be broken'?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "The Great Wall and the Cosmic Trench",
+          "The Giant Arc and the Big Ring",
+          "Two enormous structures — the Giant Arc and the Big Ring",
+          "The Milky Way and the Andromeda Galaxy"
+        ],
+        "summary": "Two enormous structures, the Giant Arc and the Big Ring, were discovered in the same region of deep space at the same cosmic distance, challenging current cosmological models.",
+        "imageUrl": "https://spacedaily.com/wp-content/uploads/2026/07/spacedaily_hubble_deep_field_1995_nasa-1.jpg",
+        "articleUrl": "https://spacedaily.com/t-two-enormous-structures-the-giant-arc-and-the-big-ring-appear-in-the-same-region-of-deep-space-at-the-same-cosmic-distance-a-pairing-so-unexpected-that-alexia-lopez-one-of-the-as/",
+        "articleRef": "science-a0"
+      },
+      {
+        "id": "science-1",
+        "topic": "science",
+        "prompt": "What did a 2025 study reveal about dinosaurs just before the asteroid hit?",
+        "correctAnswerIndex": 0,
+        "options": [
+          "They were flourishing",
+          "They were in decline",
+          "For much of the past century, scientists believed dinosaurs were already in decline when the asteroid struck",
+          "They were already gone"
+        ],
+        "summary": "A 2025 study published in Science found that dinosaurs were flourishing in diverse, thriving ecosystems in New Mexico just before the asteroid impact 66 million years ago, contradicting the long-held belief they were in decline.",
+        "imageUrl": "https://spacedaily.com/wp-content/uploads/2026/07/dinosaurs.jpg",
+        "articleUrl": "https://spacedaily.com/t-for-much-of-the-past-century-scientists-believed-dinosaurs-were-already-in-decline-when-the-asteroid-struck-66-million-years-ago-but-a-2025-study-published-in-science-found-fossils-in-new-m/",
+        "articleRef": "science-a1"
+      },
+      {
+        "id": "science-2",
+        "topic": "science",
+        "prompt": "How do you cool a data center in space when there's no air, no water, and no cooling towers?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "Cooling a data centre on Earth can consume 10 to 30 per cent of its energy budget and millions of litres of water",
+          "Giant space fans",
+          "Vast radiator panels bleeding heat as infrared light",
+          "Laser cooling beams"
+        ],
+        "summary": "In orbit, data centers must use vast radiator panels to bleed waste heat away as infrared light, since there is no air or water available for traditional cooling methods.",
+        "imageUrl": "https://spacedaily.com/wp-content/uploads/2026/07/datacentre.jpg",
+        "articleUrl": "https://spacedaily.com/t-cooling-a-data-centre-on-earth-can-consume-10-to-30-per-cent-of-its-energy-budget-and-millions-of-litres-of-water-in-orbit-there-is-no-air-no-cooling-towers-and-no-river-to-dump-heat-into/",
+        "articleRef": "science-a2"
+      },
+      {
+        "id": "science-3",
+        "topic": "science",
+        "prompt": "Voyager 1 is still sending data from interstellar space—what powers this little champ that launched in 1977?",
+        "correctAnswerIndex": 0,
+        "options": [
+          "A nuclear power source the size of a car battery",
+          "The Voyager 1 probe, launched in 1977, is now so far from Earth that a radio signal takes over 22 hours to reach it",
+          "A hamster wheel",
+          "A solar panel the size of a football field"
+        ],
+        "summary": "Voyager 1 is powered by a nuclear power source the size of a car battery and is still sending data from interstellar space, despite being over 22 light-hours away from Earth.",
+        "imageUrl": "https://spacedaily.com/wp-content/uploads/2026/07/voyagerprobe.jpg",
+        "articleUrl": "https://spacedaily.com/t-the-voyager-1-probe-launched-in-1977-is-now-so-far-from-earth-that-a-radio-signal-travelling-at-the-speed-of-light-takes-over-22-hours-to-reach-it-and-it-is-still-sending-data-back-from-interstella/",
+        "articleRef": "science-a3"
+      },
+      {
+        "id": "science-4",
+        "topic": "science",
+        "prompt": "How many new genetic locations linked to anxiety did a massive study of 700,000 people uncover?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "All 74 were new",
+          "A genetic analysis of nearly 700,000 people identified 74 distinct locations in the human genome tied to anxiety",
+          "39 new locations",
+          "Only 12 new spots"
+        ],
+        "summary": "A genetic analysis of nearly 700,000 people identified 74 distinct genome locations tied to anxiety, 39 of which had never been linked to the condition before.",
+        "imageUrl": "https://spacedaily.com/wp-content/uploads/2026/07/human-genome-tied-to-anxiety.png",
+        "articleUrl": "https://spacedaily.com/n-a-genetic-analysis-of-nearly-700000-people-identified-74-distinct-locations-in-the-human-genome-tied-to-anxiety-39-of-which-had-never-been-linked-to-the-condition-before/",
+        "articleRef": "science-a4"
+      }
+    ],
+    "all": [
+      {
+        "id": "all-0",
+        "topic": "general",
+        "prompt": "What natural disaster gate-crashed Philly's Fourth of July party, forcing concertgoers to flee the Ben Franklin Parkway?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "An unexpected visit from Taylor Swift's security team",
+          "Severe storms",
+          "A surprise alien invasion",
+          "A firework malfunction that turned the skyline into a volcano"
+        ],
+        "summary": "Severe storms delayed Philadelphia's Fourth of July celebration, forcing evacuations before it resumed after midnight.",
+        "imageUrl": "https://cdn.abcotvs.com/dip/images/19449759_070426-wpvi-philly-concert-evacuation-notice-AP-16x9-img.png?w=1600",
+        "articleUrl": "https://6abc.com/post/july-4th-concertgoers-evacuated-ben-franklin-parkway-due-storms/19449629/",
+        "articleRef": "general-a0"
+      },
+      {
+        "id": "all-1",
+        "topic": "tech",
+        "prompt": "Nintendo just sent a love letter to its fans! What’s the big message?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "They’re launching a new console tomorrow",
+          "They’re pushing for originality",
+          "They’re shutting down the Switch eShop",
+          "They’re giving away free games"
+        ],
+        "summary": "Nintendo shared a message with fans emphasizing its commitment to originality.",
+        "imageUrl": "https://nintendoeverything.com/wp-content/uploads/Nintendo-Famitsu-message.webp",
+        "articleUrl": "https://nintendoeverything.com/nintendo-shares-a-message-with-fans-pushing-for-originality-and-unique-entertainment-that-only-we-could-produce/",
+        "articleRef": "tech-a0"
+      },
+      {
+        "id": "all-2",
+        "topic": "business",
+        "prompt": "If you're driving in California and thinking about a DUI, better check your wallet — because your insurance is about to go full Hollywood stuntman. How much do California drivers pay for car insurance after a DUI?",
+        "correctAnswerIndex": 3,
+        "options": [
+          "No hike at all — you're covered",
+          "Third-steepest hike in the nation",
+          "First-steepest hike in the nation",
+          "Second-steepest hike in the nation"
+        ],
+        "summary": "California drivers face the nation’s second-steepest car insurance hike after a DUI conviction.",
+        "imageUrl": "https://nypost.com/wp-content/uploads/sites/2/2026/07/133303333.jpg?quality=75&strip=all&w=1200",
+        "articleUrl": "https://nypost.com/2026/07/04/us-news/the-staggering-cost-california-drivers-pay-for-getting-a-dui/",
+        "articleRef": "business-a0"
+      },
+      {
+        "id": "all-3",
+        "topic": "sports",
+        "prompt": "Who played the part of a human fireworks display AND a hero on Independence Day by crushing a walk-off homer for the Astros?",
+        "correctAnswerIndex": 2,
+        "options": [
+          "A firework-shaped mascot named 'Sparky'",
+          "A literal bald eagle with a baseball bat",
+          "Yordan Alvarez",
+          "Casey Legumina (he was just the pitcher who served it up)"
+        ],
+        "summary": "Yordan Alvarez hit a two-run walk-off home run in the bottom of the ninth inning to cap the Astros' wild comeback against the Rays.",
+        "imageUrl": "https://img.mlbstatic.com/mlb-images/image/upload/t_2x1/t_w1536/mlb/yunnfz0gecnd0fwg86wt.jpg",
+        "articleUrl": "https://www.mlb.com/news/yordan-alvarez-hits-2-run-walk-off-home-run-against-rays",
+        "articleRef": "sports-a0"
+      },
+      {
+        "id": "all-4",
+        "topic": "science",
+        "prompt": "What cosmic objects are so huge and weird that even astronomers are like 'uh, our universe model might be broken'?",
+        "correctAnswerIndex": 1,
+        "options": [
+          "The Great Wall and the Cosmic Trench",
+          "The Giant Arc and the Big Ring",
+          "Two enormous structures — the Giant Arc and the Big Ring",
+          "The Milky Way and the Andromeda Galaxy"
+        ],
+        "summary": "Two enormous structures, the Giant Arc and the Big Ring, were discovered in the same region of deep space at the same cosmic distance, challenging current cosmological models.",
+        "imageUrl": "https://spacedaily.com/wp-content/uploads/2026/07/spacedaily_hubble_deep_field_1995_nasa-1.jpg",
+        "articleUrl": "https://spacedaily.com/t-two-enormous-structures-the-giant-arc-and-the-big-ring-appear-in-the-same-region-of-deep-space-at-the-same-cosmic-distance-a-pairing-so-unexpected-that-alexia-lopez-one-of-the-as/",
+        "articleRef": "science-a0"
+      }
+    ]
+  }
+}

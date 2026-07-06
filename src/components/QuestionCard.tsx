@@ -69,7 +69,14 @@ export function QuestionCard({
               className="news-image"
               fallbackSrc="/news-placeholder.svg"
             />
-            <Anchor href={question.imageUrl} target="_blank" rel="noreferrer" size="10px" ta="right" c="pink.7">
+            <Anchor
+              href={question.imageUrl}
+              target="_blank"
+              rel="noreferrer"
+              size="10px"
+              ta="right"
+              c="pink.7"
+            >
               image source
             </Anchor>
           </>
@@ -87,7 +94,8 @@ export function QuestionCard({
         <Radio.Group value={selectedAnswer} onChange={onSelect}>
           <Stack gap="xs">
             {question.options.map((option, index) => {
-              const isCorrect = answered && index === question.correctAnswerIndex;
+              const isCorrect =
+                answered && index === question.correctAnswerIndex;
               const isWrongPick =
                 answered &&
                 selectedAnswer === option &&
@@ -142,7 +150,12 @@ export function QuestionCard({
               {isFinal ? "Show my score" : "Next headline"}
             </Button>
           ) : (
-            <Button color="pink" size="sm" onClick={onSubmit} disabled={!selectedAnswer}>
+            <Button
+              color="pink"
+              size="sm"
+              onClick={onSubmit}
+              disabled={!selectedAnswer}
+            >
               Lock in the take
             </Button>
           )}

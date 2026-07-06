@@ -1,9 +1,9 @@
+import { deepseek } from "@ai-sdk/deepseek";
+import { generateText, Output } from "ai";
+import "dotenv/config";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import "dotenv/config";
-import { deepseek } from "@ai-sdk/deepseek";
-import { generateText, Output } from "ai";
 import { z } from "zod";
 import {
   type CollectedDataFile,
@@ -30,11 +30,17 @@ async function saveCollectedData(
       title: a.title,
       description: a.description ?? "",
       url: a.url,
-      source: typeof a.source === "object" && a.source !== null ? (a.source.name ?? "Unknown") : String(a.source ?? "Unknown"),
+      source:
+        typeof a.source === "object" && a.source !== null
+          ? (a.source.name ?? "Unknown")
+          : String(a.source ?? "Unknown"),
       imageUrl: a.urlToImage ?? (a as any).imageUrl,
       publishedAt: a.publishedAt,
     })),
-    quizQuestions: quizQuestions.map((q) => ({ ...q, articleRef: q.articleRef ?? "" })) as CollectedDataFile["quizQuestions"],
+    quizQuestions: quizQuestions.map((q) => ({
+      ...q,
+      articleRef: q.articleRef ?? "",
+    })) as CollectedDataFile["quizQuestions"],
   };
 
   const filePath = join(DATA_DIR, `${stamp}.json`);
@@ -58,12 +64,17 @@ async function writeQuizJson(allQuestions: QuizQuestionOutput[]) {
   grouped.all = [];
   for (const topic of Object.keys(grouped).filter((k) => k !== "all")) {
     if (grouped[topic].length > 0 && grouped.all.length < 5) {
-      grouped.all.push({ ...grouped[topic][0], id: `all-${grouped.all.length}` });
+      grouped.all.push({
+        ...grouped[topic][0],
+        id: `all-${grouped.all.length}`,
+      });
     }
   }
 
   await writeFile(QUIZ_JSON, JSON.stringify({ quizzes: grouped }), "utf-8");
-  console.log(`Wrote quizzes.json (${Object.values(grouped).reduce((s, qs) => s + qs.length, 0)} questions)`);
+  console.log(
+    `Wrote quizzes.json (${Object.values(grouped).reduce((s, qs) => s + qs.length, 0)} questions)`,
+  );
 }
 
 const USAGE = `Usage:

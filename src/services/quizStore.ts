@@ -1,7 +1,15 @@
 import { create } from "zustand";
 import type { QuizQuestion } from "../types/news";
 
-export const TOPIC_IDS = ["general", "tech", "politics", "business", "sports", "science", "all"] as const;
+export const TOPIC_IDS = [
+  "general",
+  "tech",
+  "politics",
+  "business",
+  "sports",
+  "science",
+  "all",
+] as const;
 export type TopicId = (typeof TOPIC_IDS)[number];
 
 export const TOPIC_LABELS: Record<TopicId, string> = {
@@ -36,7 +44,14 @@ type QuizStore = {
 };
 
 function blankTopic(): TopicState {
-  return { currentIndex: 0, score: 0, answeredCount: 0, selectedAnswer: null, answered: false, finished: false };
+  return {
+    currentIndex: 0,
+    score: 0,
+    answeredCount: 0,
+    selectedAnswer: null,
+    answered: false,
+    finished: false,
+  };
 }
 
 function initTopics(): Record<string, TopicState> {
@@ -57,7 +72,10 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   selectAnswer: (answer) => {
     const { activeTopic } = get();
     set((s) => ({
-      topics: { ...s.topics, [activeTopic]: { ...s.topics[activeTopic], selectedAnswer: answer } },
+      topics: {
+        ...s.topics,
+        [activeTopic]: { ...s.topics[activeTopic], selectedAnswer: answer },
+      },
     }));
   },
 
@@ -70,7 +88,8 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (!questions) return;
 
     const current = questions[t.currentIndex];
-    const correct = t.selectedAnswer === current.options[current.correctAnswerIndex];
+    const correct =
+      t.selectedAnswer === current.options[current.correctAnswerIndex];
 
     set((s) => ({
       topics: {
@@ -79,7 +98,9 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
           ...s.topics[activeTopic],
           answered: true,
           answeredCount: s.topics[activeTopic].answeredCount + 1,
-          score: correct ? s.topics[activeTopic].score + 1 : s.topics[activeTopic].score,
+          score: correct
+            ? s.topics[activeTopic].score + 1
+            : s.topics[activeTopic].score,
         },
       },
     }));

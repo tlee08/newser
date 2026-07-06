@@ -66,11 +66,11 @@ bash scripts/finalise-promos.sh                    # Flatten classic images for 
 
 `pnpm generate-promo` renders 6 styled PNGs per question (3 styles × 2 variants):
 
-| Style | Vibe |
-|-------|------|
+| Style     | Vibe                                            |
+| --------- | ----------------------------------------------- |
 | `classic` | Icon + "Newser" + "Daily Briefing Brawl" + card |
-| `hero` | Same + "Five headlines enter..." tagline |
-| `splash` | Magazine cover — image with overlaid prompt |
+| `hero`    | Same + "Five headlines enter..." tagline        |
+| `splash`  | Magazine cover — image with overlaid prompt     |
 
 Each style produces a `-question` and `-answer` variant. The answer includes the correct answer (highlighted green), summary, and source URLs.
 
