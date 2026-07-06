@@ -45,29 +45,29 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: daily quiz update [skip ci]"
           git push
 
-      - name: Upload collected data to Cloudflare R2
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: |
-            r2 object put newser-promos/collected_data/ --recursive --file resources/collected_data/
+      - name: Upload collected data to R2
+        run: |
+          find resources/collected_data -type f -name "*.json" | while read -r f; do
+            pnpm exec wrangler r2 object put "newser/collected_data/$(basename "$f")" --file "$f"
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Generate promo images
         run: |
           LATEST=$(ls -t resources/collected_data/*.json | head -1)
           FILENAME=$(basename "$LATEST")
           pnpm generate-promo --file "$FILENAME"
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 
       - name: Finalise promo images
         run: bash scripts/finalise-promos.sh
 
-      - name: Upload promo images to Cloudflare R2
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: |
-            r2 object put newser-promos/promotion_images_finalised/ --recursive --file resources/promotion_images_finalised/
+      - name: Upload promo images to R2
+        run: |
+          find resources/promotion_images_finalised -type f -name "*.png" | while read -r f; do
+            pnpm exec wrangler r2 object put "newser/promotion_images_finalised/${f#resources/promotion_images_finalised/}" --file "$f"
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
