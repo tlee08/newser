@@ -2,6 +2,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import "dotenv/config";
+import { deepseek } from "@ai-sdk/deepseek";
+import { generateText, Output } from "ai";
+import { z } from "zod";
 import {
   type CollectedDataFile,
   type QuizQuestionOutput,
@@ -144,17 +147,20 @@ RULES:
 - The prompt should be funny and energetic — like a loud morning show host.
 - The correct answer must be factually accurate based on the article. Do NOT invent false events.
 - The summary must stick to the article facts. Do not fabricate.
-- Return ONLY a JSON array. No markdown, no explanations.
+- For the 3 wrong answers: one should be far-fetched and absurd, one should be plausible-but-whimsical, and one should be loosely adapted from another article's headline to feel oddly relevant.`;
 
-Format:
-[{
-  "prompt": "Funny question text",
-  "summary": "One sentence factual summary",
-  "correctAnswer": "Correct answer text",
-  "decoy1": "Far-fetched decoy",
-  "decoy2": "Plausible decoy",
-  "decoy3": "Adapted-headline decoy"
-}]`;
+const questionSchema = z.object({
+  prompt: z.string(),
+  correctAnswer: z.string(),
+  decoy1: z.string(),
+  decoy2: z.string(),
+  decoy3: z.string(),
+  summary: z.string(),
+});
+
+const quizSchema = z.object({
+  questions: z.array(questionSchema).length(5),
+});
 
 function shuffle(options: string[]): { options: string[]; idx: number } {
   const arr = [...options];
@@ -168,7 +174,6 @@ function shuffle(options: string[]): { options: string[]; idx: number } {
 
 async function generateQuiz(
   articles: ArticleInput[],
-  apiKey: string,
 ): Promise<QuizQuestionOutput[]> {
   const articleText = articles
     .map(
@@ -178,56 +183,31 @@ async function generateQuiz(
     .join("\n\n");
   const otherHeadlines = articles.map((a) => `- ${a.title}`).join("\n");
 
-  const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "deepseek-chat",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a 5-question quiz from these articles:\n\n${articleText}`,
-        },
-      ],
-      max_tokens: 2000,
-      temperature: 0.9,
-    }),
+  const { output } = await generateText({
+    model: deepseek("deepseek-chat"),
+    output: Output.object({ schema: quizSchema }),
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a 5-question quiz from these articles:\n\n${articleText}`,
+      },
+    ],
+    temperature: 0.9,
+    maxOutputTokens: 2000,
   });
 
-  if (!response.ok) throw new Error(`DeepSeek returned ${response.status}`);
-
-  const payload = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-  const raw = payload?.choices?.[0]?.message?.content ?? "";
-  const cleaned = raw.replace(/```(?:json)?/g, "").trim();
-  const parsed = JSON.parse(cleaned);
-  if (!Array.isArray(parsed) || parsed.length === 0)
-    throw new Error("DeepSeek returned empty response");
-
-  return parsed.slice(0, 5).map((q: any, i: number) => {
-    const answer: string = q.correctAnswer ?? "";
-    const decoys = [q.decoy1, q.decoy2, q.decoy3].filter(Boolean) as string[];
-    const allOptions = [answer, ...decoys];
-    if (allOptions.length < 4) {
-      throw new Error(
-        `DeepSeek returned ${allOptions.length} options (expected 4)`,
-      );
-    }
-    // Shuffle — correct answer goes to a random position
+  return output.questions.map((q, i) => {
+    const allOptions = [q.correctAnswer, q.decoy1, q.decoy2, q.decoy3];
     const { options, idx } = shuffle(allOptions);
 
     return {
       id: "",
       topic: "",
-      prompt: q.prompt ?? "",
+      prompt: q.prompt,
       correctAnswerIndex: idx,
       options,
-      summary: q.summary ?? articles[i]?.description ?? "",
+      summary: q.summary,
       imageUrl: articles[i]?.imageUrl,
       articleUrl: articles[i]?.url,
     };
@@ -276,7 +256,7 @@ async function runFresh() {
 
     for (let b = 0, qNum = 0; b < batchCount; b++) {
       const batch = inputs.slice(b * 5, b * 5 + 5);
-      const dsQuestions = await generateQuiz(batch, dsKey);
+      const dsQuestions = await generateQuiz(batch);
 
       for (const q of dsQuestions) {
         allQuestions.push({
@@ -354,7 +334,7 @@ async function runFile(filename: string) {
 
     for (let b = 0; b < batchCount; b++) {
       const batch = inputs.slice(b * 5, b * 5 + 5);
-      const dsQuestions = await generateQuiz(batch, dsKey);
+      const dsQuestions = await generateQuiz(batch);
 
       for (const q of dsQuestions) {
         questions.push({

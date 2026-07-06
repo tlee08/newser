@@ -48,7 +48,7 @@ jobs:
       - name: Upload collected data to R2
         run: |
           find resources/collected_data -type f -name "*.json" | while read -r f; do
-            pnpm exec wrangler r2 object put "newser/collected_data/$(basename "$f")" --file "$f"
+            pnpm exec wrangler r2 object put "newser/collected_data/$(basename "$f")" --file "$f" --remote
           done
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
       - name: Upload promo images to R2
         run: |
           find resources/promotion_images_finalised -type f -name "*.png" | while read -r f; do
-            pnpm exec wrangler r2 object put "newser/promotion_images_finalised/${f#resources/promotion_images_finalised/}" --file "$f"
+            pnpm exec wrangler r2 object put "newser/promotion_images_finalised/${f#resources/promotion_images_finalised/}" --file "$f" --remote
           done
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
