@@ -150,7 +150,8 @@ function toInput(
 
 // ── DeepSeek ──
 
-const SYSTEM_PROMPT = `You are a witty news quiz generator for "Newser" — a playful daily briefing app. Your job: turn 5 news articles into a funny multiple-choice quiz.
+const SYSTEM_PROMPT = `
+You are a witty news quiz generator for "Newser" — a playful daily briefing app. Your job: turn 5 news articles into a funny multiple-choice quiz.
 
 RULES:
 - Generate exactly 5 questions, one per article.
@@ -158,15 +159,26 @@ RULES:
 - The prompt should be funny and energetic — like a loud morning show host.
 - The correct answer must be factually accurate based on the article. Do NOT invent false events.
 - The summary must stick to the article facts. Do not fabricate.
-- For the 3 wrong answers: one should be far-fetched and absurd, one should be plausible-but-whimsical, and one should be loosely adapted from another article's headline to feel oddly relevant.`;
+- For the 3 wrong answers: one should be far-fetched and absurd, one should be plausible-but-whimsical, and one should be loosely adapted from another article's headline to feel oddly relevant.
+
+Format:
+[{
+  "prompt": "Funny question text",
+  "summary": "One sentence factual summary",
+  "correctAnswer": "Correct answer text",
+  "decoy1": "Far-fetched decoy",
+  "decoy2": "Plausible decoy",
+  "decoy3": "Adapted-headline decoy"
+}]
+`;
 
 const questionSchema = z.object({
   prompt: z.string(),
+  summary: z.string(),
   correctAnswer: z.string(),
   decoy1: z.string(),
   decoy2: z.string(),
   decoy3: z.string(),
-  summary: z.string(),
 });
 
 const quizSchema = z.object({
