@@ -99,26 +99,42 @@ const TOPICS = [
 
 // ── NewsAPI ──
 
+const COUNTRIES = ["us", "gb", "au"];
+
 async function fetchNews(
   apiKey: string,
   topic: string,
   category?: string,
   q?: string,
 ): Promise<RawArticle[]> {
-  const url = new URL("https://newsapi.org/v2/top-headlines");
-  url.searchParams.set("language", "en");
-  url.searchParams.set("pageSize", "20");
-  url.searchParams.set("apiKey", apiKey);
-  if (category) url.searchParams.set("category", category);
-  if (q) url.searchParams.set("q", q);
+  const seen = new Set<string>();
+  const results: RawArticle[] = [];
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    const payload = (await response.json()) as { message?: string };
-    throw new Error(payload.message ?? "NewsAPI request failed");
+  for (const country of COUNTRIES) {
+    const url = new URL("https://newsapi.org/v2/top-headlines");
+    url.searchParams.set("language", "en");
+    url.searchParams.set("pageSize", "20");
+    url.searchParams.set("apiKey", apiKey);
+    url.searchParams.set("country", country);
+    if (category) url.searchParams.set("category", category);
+    if (q) url.searchParams.set("q", q);
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) continue;
+      const payload = (await response.json()) as { articles?: RawArticle[] };
+      for (const a of payload.articles ?? []) {
+        if (a.url && !seen.has(a.url)) {
+          seen.add(a.url);
+          results.push(a);
+        }
+      }
+    } catch {
+      // continue to next country
+    }
   }
-  const payload = (await response.json()) as { articles?: RawArticle[] };
-  return (payload.articles ?? []).map((a, i) => ({
+
+  return results.map((a, i) => ({
     ...a,
     id: `${topic}-a${i}`,
     topic,
@@ -161,15 +177,20 @@ RULES:
 - The summary must stick to the article facts. Do not fabricate.
 - For the 3 wrong answers: one should be far-fetched and absurd, one should be plausible-but-whimsical, and one should be loosely adapted from another article's headline to feel oddly relevant.
 
-Format:
-[{
-  "prompt": "Funny question text",
-  "summary": "One sentence factual summary",
-  "correctAnswer": "Correct answer text",
-  "decoy1": "Far-fetched decoy",
-  "decoy2": "Plausible decoy",
-  "decoy3": "Adapted-headline decoy"
-}]
+Return Format:
+{
+  "questions": [
+    {
+      "prompt": "Funny question text",
+      "summary": "One sentence factual summary",
+      "correctAnswer": "Correct answer text",
+      "decoy1": "Far-fetched decoy",
+      "decoy2": "Plausible decoy",
+      "decoy3": "Adapted-headline decoy"
+    },
+    ...
+  ]
+}
 `;
 
 const questionSchema = z.object({
@@ -179,10 +200,6 @@ const questionSchema = z.object({
   decoy1: z.string(),
   decoy2: z.string(),
   decoy3: z.string(),
-});
-
-const quizSchema = z.object({
-  questions: z.array(questionSchema).length(5),
 });
 
 function shuffle(options: string[]): { options: string[]; idx: number } {
@@ -206,6 +223,11 @@ async function generateQuiz(
     .join("\n\n");
   const otherHeadlines = articles.map((a) => `- ${a.title}`).join("\n");
 
+  const n_articles = articles.length;
+  const quizSchema = z.object({
+    questions: z.array(questionSchema).length(n_articles),
+  });
+
   const { output } = await generateText({
     model: deepseek("deepseek-chat"),
     output: Output.object({ schema: quizSchema }),
@@ -213,7 +235,7 @@ async function generateQuiz(
     messages: [
       {
         role: "user",
-        content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a 5-question quiz from these articles:\n\n${articleText}`,
+        content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a ${n_articles}-question quiz from these articles:\n\n${articleText}`,
       },
     ],
     temperature: 0.9,
@@ -223,7 +245,6 @@ async function generateQuiz(
   return output.questions.map((q, i) => {
     const allOptions = [q.correctAnswer, q.decoy1, q.decoy2, q.decoy3];
     const { options, idx } = shuffle(allOptions);
-
     return {
       id: "",
       topic: "",
@@ -272,7 +293,7 @@ async function runFresh() {
     const inputs = articles.map(toInput);
     allArticles.push(...articles);
 
-    const batchCount = Math.floor(inputs.length / 5);
+    const batchCount = Math.ceil(inputs.length / 5);
     console.log(
       `\n  ${topic}: ${inputs.length} articles → ${batchCount} batches`,
     );
@@ -343,7 +364,7 @@ async function runFile(filename: string) {
   for (const topic of topics) {
     const articles = byTopic[topic];
     const inputs = articles.map(toInput);
-    const batchCount = Math.floor(inputs.length / 5);
+    const batchCount = Math.ceil(inputs.length / 5);
 
     if (batchCount === 0) {
       console.log(`  ${topic}: only ${inputs.length} articles, skipping`);
