@@ -8,12 +8,10 @@ export const TOPIC_IDS = [
   "business",
   "sports",
   "science",
-  "all",
 ] as const;
 export type TopicId = (typeof TOPIC_IDS)[number];
 
 export const TOPIC_LABELS: Record<TopicId, string> = {
-  all: "All",
   general: "General",
   tech: "Tech",
   politics: "Politics",

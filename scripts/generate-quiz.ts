@@ -61,16 +61,6 @@ async function writeQuizJson(allQuestions: QuizQuestionOutput[]) {
     }
   }
 
-  grouped.all = [];
-  for (const topic of Object.keys(grouped).filter((k) => k !== "all")) {
-    if (grouped[topic].length > 0 && grouped.all.length < 5) {
-      grouped.all.push({
-        ...grouped[topic][0],
-        id: `all-${grouped.all.length}`,
-      });
-    }
-  }
-
   await writeFile(QUIZ_JSON, JSON.stringify({ quizzes: grouped }), "utf-8");
   console.log(
     `Wrote quizzes.json (${Object.values(grouped).reduce((s, qs) => s + qs.length, 0)} questions)`,
