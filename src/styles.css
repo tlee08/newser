@@ -25,8 +25,12 @@ body {
   background:
     linear-gradient(90deg, rgba(31, 27, 24, 0.09) 1px, transparent 1px) 0 0 /
       42px 42px,
-    radial-gradient(circle at 160px 80px, #ff6b9c 0 165px, transparent 180px),
-    radial-gradient(circle at calc(100% - 100px) 120px, #38d9a9 0 105px, transparent 120px),
+    radial-gradient(circle at 200px 100px, #ff6b9c 0 165px, transparent 180px),
+    radial-gradient(
+      circle at calc(100% - 280px) 150px,
+      #38d9a9 0 105px,
+      transparent 120px
+    ),
     #f7e14b;
 }
 
@@ -161,7 +165,11 @@ body {
       linear-gradient(90deg, rgba(31, 27, 24, 0.09) 1px, transparent 1px) 0 0 /
         42px 42px,
       radial-gradient(circle at 32px 30px, #ff6b9c 0 85px, transparent 100px),
-      radial-gradient(circle at calc(100% - 28px) 80px, #38d9a9 0 55px, transparent 72px),
+      radial-gradient(
+        circle at calc(100% - 28px) 80px,
+        #38d9a9 0 55px,
+        transparent 72px
+      ),
       #f7e14b;
   }
 
