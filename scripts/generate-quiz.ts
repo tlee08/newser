@@ -36,6 +36,7 @@ async function saveCollectedData(
           : String(a.source ?? "Unknown"),
       imageUrl: a.urlToImage ?? (a as any).imageUrl,
       publishedAt: a.publishedAt,
+      content: a.content,
     })),
     quizQuestions: quizQuestions.map((q) => ({
       ...q,
@@ -137,6 +138,7 @@ type ArticleInput = {
   url: string;
   source: string;
   imageUrl?: string;
+  content?: string;
 };
 
 function toInput(
@@ -151,6 +153,7 @@ function toInput(
         ? (a.source?.name ?? "Unknown")
         : (a.source ?? "Unknown"),
     imageUrl: (a as any).urlToImage ?? (a as any).imageUrl,
+    content: (a as any).content,
   };
 }
 
@@ -244,6 +247,8 @@ Write like a loud, witty morning-show host:
 
 Do not make every question start with "What happened?" or use the same joke format repeatedly.
 
+Across all 5 questions, vary the comedic approach — use different joke structures (wordplay, deadpan, hyperbole, understatement, absurdist contrast), different framing devices, and different types of absurdity.
+
 ## Factual grounding
 
 The correct answer must be directly supported by the corresponding article.
@@ -293,6 +298,12 @@ Do not copy another article's headline verbatim.
 
 The adapted-headline answer must still be incorrect for the current article.
 
+## Gamification
+
+The plausible_whimsical answer should sound almost right — a player who half-remembers the news should second-guess themselves. The absurd answer should be audibly funny when read aloud. The question should make the player think through the options, not just eliminate obvious fakes at a glance.
+
+Good quiz questions test understanding, not trivia recall. The correct answer should reward someone who actually followed the story, not someone who can spot the one answer with an obvious joke.
+
 ## Important consistency rules
 
 For every question:
@@ -341,8 +352,9 @@ ARTICLE ${index}
 Title:
 ${article.title}
 
-Content:
+Description:
 ${article.description}
+${article.content ? `\nContent:\n${article.content}` : ""}
 `,
   )
   .join("\n")}

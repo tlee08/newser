@@ -7,6 +7,7 @@ export type RawArticle = {
   urlToImage?: string;
   source?: string | { name?: string };
   publishedAt?: string;
+  content?: string;
 };
 
 export type QuizAnswer = {
@@ -38,6 +39,7 @@ export type CollectedDataFile = {
     source: string;
     imageUrl?: string;
     publishedAt?: string;
+    content?: string;
   }[];
   quizQuestions: (QuizQuestionOutput & { articleRef: string })[];
 };
