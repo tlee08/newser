@@ -169,63 +169,69 @@ const QuizAnswerSchema = z.object({
   ]),
 });
 
-const QuizQuestionSchema = z
-  .object({
-    articleIndex: z.number().int().min(0).max(4),
-    prompt: z.string().min(1),
-    summary: z.string().min(1),
-    answers: z.array(QuizAnswerSchema).length(4),
-  })
-  .superRefine((question, ctx) => {
-    const correctAnswers = question.answers.filter(
-      (answer) => answer.type === "correct",
-    );
+function makeQuizQuestionSchema(maxIndex: number) {
+  return z
+    .object({
+      articleIndex: z.number().int().min(0).max(maxIndex),
+      prompt: z.string().min(1),
+      summary: z.string().min(1),
+      answers: z.array(QuizAnswerSchema).length(4),
+    })
+    .superRefine((question, ctx) => {
+      const correctAnswers = question.answers.filter(
+        (answer) => answer.type === "correct",
+      );
 
-    if (correctAnswers.length !== 1) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Exactly one answer must have type=correct",
-        path: ["answers"],
-      });
-    }
-
-    const types = question.answers.map((answer) => answer.type);
-    const expectedTypes = [
-      "correct",
-      "plausible_whimsical",
-      "absurd",
-      "adapted_headline",
-    ];
-
-    for (const type of expectedTypes) {
-      if (types.filter((value) => value === type).length !== 1) {
+      if (correctAnswers.length !== 1) {
         ctx.addIssue({
           code: "custom",
-          message: `Exactly one answer must have type=${type}`,
+          message: "Exactly one answer must have type=correct",
           path: ["answers"],
         });
       }
-    }
+
+      const types = question.answers.map((answer) => answer.type);
+      const expectedTypes = [
+        "correct",
+        "plausible_whimsical",
+        "absurd",
+        "adapted_headline",
+      ];
+
+      for (const type of expectedTypes) {
+        if (types.filter((value) => value === type).length !== 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Exactly one answer must have type=${type}`,
+            path: ["answers"],
+          });
+        }
+      }
+    });
+}
+
+function makeNewsQuizSchema(count: number) {
+  return z.object({
+    questions: z.array(makeQuizQuestionSchema(count - 1)).length(count),
   });
+}
 
-const NewsQuizSchema = z.object({
-  questions: z.array(QuizQuestionSchema).length(5),
-});
+function makeSystemPrompt(count: number) {
+  const articleLines = Array.from(
+    { length: count },
+    (_, i) => `- Question ${i + 1} must be based on article ${i}.`,
+  ).join("\n");
 
-const SYSTEM_PROMPT = `You are the witty news quiz generator for "Newser", a playful daily news briefing app.
+  return `You are the witty news quiz generator for "Newser", a playful daily news briefing app.
 
-Your task is to turn exactly 5 supplied news articles into a funny, entertaining multiple-choice quiz.
+Your task is to turn exactly ${count} supplied news articles into a funny, entertaining multiple-choice quiz.
 
 ## Core requirements
 
-Generate exactly 5 questions.
+Generate exactly ${count} questions.
 
 Each question must correspond to exactly one article:
-- Question 1 must be based on article 0.
-- Question 2 must be based on article 1.
-- Question 3 must be based on article 2.
-- Question 4 must be based on article 3.
-- Question 5 must be based on article 4.
+${articleLines}
 
 Set "articleIndex" to the zero-based index of the article used for that question.
 
@@ -243,11 +249,11 @@ Write like a loud, witty morning-show host:
 - Use humor in the framing of the question and answers.
 - Keep the underlying news facts accurate.
 - Make the question clear enough that there is only one defensible correct answer.
-- Vary the comedic style and question structure across the 5 questions.
+- Vary the comedic style and question structure across the ${count} questions.
 
 Do not make every question start with "What happened?" or use the same joke format repeatedly.
 
-Across all 5 questions, vary the comedic approach — use different joke structures (wordplay, deadpan, hyperbole, understatement, absurdist contrast), different framing devices, and different types of absurdity.
+Across all ${count} questions, vary the comedic approach — use different joke structures (wordplay, deadpan, hyperbole, understatement, absurdist contrast), different framing devices, and different types of absurdity.
 
 ## Factual grounding
 
@@ -298,6 +304,9 @@ Do not copy another article's headline verbatim.
 
 The adapted-headline answer must still be incorrect for the current article.
 
+Make this adapted headline humorous and whimsical.
+Treat the adapted material as stimulus for a risible answer in response to the current quiz question.
+
 ## Gamification
 
 The plausible_whimsical answer should sound almost right — a player who half-remembers the news should second-guess themselves. The absurd answer should be audibly funny when read aloud. The question should make the player think through the options, not just eliminate obvious fakes at a glance.
@@ -325,6 +334,7 @@ Do not include:
 - Commentary
 - Markdown
 - Additional fields`;
+}
 
 function shuffle<T>(items: T[]): T[] {
   const arr = [...items];
@@ -338,11 +348,17 @@ function shuffle<T>(items: T[]): T[] {
 async function generateQuiz(
   articles: ArticleInput[],
 ): Promise<QuizQuestionOutput[]> {
-  const { output } = await generateText({
-    model: deepseek("deepseek-chat"),
-    output: Output.object({ schema: NewsQuizSchema }),
-    instructions: SYSTEM_PROMPT,
-    prompt: `Here are the 5 news articles.
+  const n = articles.length;
+  const schema = makeNewsQuizSchema(n);
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { output } = await generateText({
+        model: deepseek("deepseek-chat"),
+        output: Output.object({ schema }),
+        instructions: makeSystemPrompt(n),
+        prompt: `Here are the ${n} news articles.
 
 ${articles
   .map(
@@ -359,20 +375,38 @@ ${article.content ? `\nContent:\n${article.content}` : ""}
   )
   .join("\n")}
 `,
-    temperature: 0.9,
-    maxOutputTokens: 2000,
-  });
+        temperature: 0.9,
+        maxOutputTokens: 2000,
+      });
 
-  return output.questions.map((q, i) => ({
-    id: "",
-    topic: "",
-    prompt: q.prompt,
-    answers: shuffle(q.answers),
-    summary: q.summary,
-    source: articles[i]?.source,
-    imageUrl: articles[i]?.imageUrl,
-    articleUrl: articles[i]?.url,
-  }));
+      return output.questions.map((q, i) => ({
+        id: "",
+        topic: "",
+        prompt: q.prompt,
+        answers: shuffle(q.answers),
+        summary: q.summary,
+        source: articles[i]?.source,
+        imageUrl: articles[i]?.imageUrl,
+        articleUrl: articles[i]?.url,
+      }));
+    } catch (err) {
+      lastError = err;
+      const isSchemaError =
+        err instanceof Error &&
+        (err.name === "AI_NoObjectGeneratedError" ||
+          err.message.includes("response did not match schema"));
+      if (isSchemaError && attempt < 2) {
+        console.warn(
+          `    ⚠ schema mismatch (attempt ${attempt + 1}/3), retrying…`,
+        );
+        await new Promise((r) => setTimeout(r, 500));
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError;
 }
 
 // ── fresh ──
@@ -433,7 +467,9 @@ async function runFresh() {
         qTotal++;
       }
 
-      console.log(`    batch ${b + 1}/${batchCount} → 5 questions`);
+      console.log(
+        `    batch ${b + 1}/${batchCount} → ${batch.length} questions`,
+      );
       if (b < batchCount - 1) await new Promise((r) => setTimeout(r, 300));
     }
   }
@@ -511,7 +547,9 @@ async function runFile(filename: string) {
         qNum++;
       }
 
-      console.log(`    batch ${b + 1}/${batchCount} → 5 questions`);
+      console.log(
+        `    batch ${b + 1}/${batchCount} → ${batch.length} questions`,
+      );
       if (b < batchCount - 1) await new Promise((r) => setTimeout(r, 300));
     }
   }
