@@ -7,13 +7,17 @@ export type NewsArticle = {
   publishedAt?: string;
 };
 
+export type QuizAnswer = {
+  text: string;
+  type: "correct" | "plausible_whimsical" | "absurd" | "adapted_headline";
+};
+
 export type QuizQuestion = {
   id: string;
   prompt: string;
   imageUrl?: string;
   source: string;
   articleUrl: string;
-  correctAnswerIndex: number;
-  options: string[];
+  answers: QuizAnswer[];
   summary: string;
 };

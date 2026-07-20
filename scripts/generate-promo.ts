@@ -187,8 +187,8 @@ function questionHtml(q: QuizQuestionOutput, style: Style): string {
   const imgBlock = q.imageUrl
     ? `<div class="card-image"><img src="${esc(q.imageUrl)}" alt="" /></div>`
     : "";
-  const opts = q.options
-    .map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`)
+  const opts = q.answers
+    .map((a, i) => `<div class="option">${"ABCD"[i]}. ${esc(a.text)}</div>`)
     .join("");
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES[style]}</style></head><body>
@@ -199,11 +199,11 @@ function questionHtml(q: QuizQuestionOutput, style: Style): string {
 function splashQuestionHtml(q: QuizQuestionOutput): string {
   if (q.imageUrl) {
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
-<div class="card-wrap">${header("splash")}<div class="card"><div class="card-image-overlay"><img src="${esc(q.imageUrl)}" alt="" /><div class="overlay-text"><div class="prompt">${esc(q.prompt)}</div></div></div><div class="options-plain"><div class="options">${q.options.map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`).join("")}</div></div></div></div>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="card-image-overlay"><img src="${esc(q.imageUrl)}" alt="" /><div class="overlay-text"><div class="prompt">${esc(q.prompt)}</div></div></div><div class="options-plain"><div class="options">${q.answers.map((a, i) => `<div class="option">${"ABCD"[i]}. ${esc(a.text)}</div>`).join("")}</div></div></div></div>
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
   }
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
-<div class="card-wrap">${header("splash")}<div class="card"><div class="prompt-plain">${esc(q.prompt)}</div><div class="options-plain"><div class="options">${q.options.map((o, i) => `<div class="option">${"ABCD"[i]}. ${esc(o)}</div>`).join("")}</div></div></div></div>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="prompt-plain">${esc(q.prompt)}</div><div class="options-plain"><div class="options">${q.answers.map((a, i) => `<div class="option">${"ABCD"[i]}. ${esc(a.text)}</div>`).join("")}</div></div></div></div>
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
 }
 
@@ -222,7 +222,7 @@ function answerHtml(q: QuizQuestionOutput, style: Style): string {
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES[style]}</style></head><body>
 <div class="card-wrap">${header(style)}<div class="card">${imgBlock}<div class="prompt">${esc(q.prompt)}</div>
-<div class="answer-block"><div class="answer-highlight">${"ABCD"[q.correctAnswerIndex]}. ${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<div class="answer-block"><div class="answer-highlight">${"ABCD"[q.answers.findIndex((a) => a.type === "correct")]}. ${esc(q.answers.find((a) => a.type === "correct")?.text ?? "")}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
 }
 
@@ -236,11 +236,11 @@ function splashAnswerHtml(q: QuizQuestionOutput): string {
 
   if (q.imageUrl) {
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
-<div class="card-wrap">${header("splash")}<div class="card"><div class="card-image-overlay"><img src="${esc(q.imageUrl)}" alt="" /><div class="overlay-text"><div class="prompt">${esc(q.prompt)}</div></div></div><div class="answer-block-plain"><div class="answer-highlight">${"ABCD"[q.correctAnswerIndex]}. ${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="card-image-overlay"><img src="${esc(q.imageUrl)}" alt="" /><div class="overlay-text"><div class="prompt">${esc(q.prompt)}</div></div></div><div class="answer-block-plain"><div class="answer-highlight">${"ABCD"[q.answers.findIndex((a) => a.type === "correct")]}. ${esc(q.answers.find((a) => a.type === "correct")?.text ?? "")}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
   }
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${SHARED_CSS}${STYLES.splash}</style></head><body>
-<div class="card-wrap">${header("splash")}<div class="card"><div class="prompt-plain">${esc(q.prompt)}</div><div class="answer-block-plain"><div class="answer-highlight">${"ABCD"[q.correctAnswerIndex]}. ${esc(q.options[q.correctAnswerIndex])}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
+<div class="card-wrap">${header("splash")}<div class="card"><div class="prompt-plain">${esc(q.prompt)}</div><div class="answer-block-plain"><div class="answer-highlight">${"ABCD"[q.answers.findIndex((a) => a.type === "correct")]}. ${esc(q.answers.find((a) => a.type === "correct")?.text ?? "")}</div><div class="summary">${esc(q.summary)}</div>${srcUrl}${imgUrl}</div></div></div>
 <script>document.fonts.ready.then(function(){document.body.classList.add('fonts-loaded')})</script></body></html>`;
 }
 

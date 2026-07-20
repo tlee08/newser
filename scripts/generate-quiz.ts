@@ -156,96 +156,211 @@ function toInput(
 
 // ── DeepSeek ──
 
-const SYSTEM_PROMPT = `
-You are a witty news quiz generator for "Newser" — a playful daily briefing app. Your job: turn 5 news articles into a funny multiple-choice quiz.
-
-RULES:
-- Generate exactly 5 questions, one per article.
-- Each question must have: a prompt, 4 answer options, the correct answer, and a short factual summary (1 sentence).
-- The prompt should be funny and energetic — like a loud morning show host.
-- The correct answer must be factually accurate based on the article. Do NOT invent false events.
-- The summary must stick to the article facts. Do not fabricate.
-- For the 3 wrong answers: one should be far-fetched and absurd, one should be plausible-but-whimsical, and one should be loosely adapted from another article's headline to feel oddly relevant.
-
-Return Format:
-{
-  "questions": [
-    {
-      "prompt": "Funny question text",
-      "summary": "One sentence factual summary",
-      "correctAnswer": "Correct answer text",
-      "decoy1": "Far-fetched decoy",
-      "decoy2": "Plausible decoy",
-      "decoy3": "Adapted-headline decoy"
-    },
-    ...
-  ]
-}
-`;
-
-const questionSchema = z.object({
-  prompt: z.string(),
-  summary: z.string(),
-  correctAnswer: z.string(),
-  decoy1: z.string(),
-  decoy2: z.string(),
-  decoy3: z.string(),
+const QuizAnswerSchema = z.object({
+  text: z.string(),
+  type: z.enum([
+    "correct",
+    "plausible_whimsical",
+    "absurd",
+    "adapted_headline",
+  ]),
 });
 
-function shuffle(options: string[]): { options: string[]; idx: number } {
-  const arr = [...options];
-  const correct = arr[0];
+const QuizQuestionSchema = z
+  .object({
+    articleIndex: z.number().int().min(0).max(4),
+    prompt: z.string().min(1),
+    summary: z.string().min(1),
+    answers: z.array(QuizAnswerSchema).length(4),
+  })
+  .superRefine((question, ctx) => {
+    const correctAnswers = question.answers.filter(
+      (answer) => answer.type === "correct",
+    );
+
+    if (correctAnswers.length !== 1) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Exactly one answer must have type=correct",
+        path: ["answers"],
+      });
+    }
+
+    const types = question.answers.map((answer) => answer.type);
+    const expectedTypes = [
+      "correct",
+      "plausible_whimsical",
+      "absurd",
+      "adapted_headline",
+    ];
+
+    for (const type of expectedTypes) {
+      if (types.filter((value) => value === type).length !== 1) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Exactly one answer must have type=${type}`,
+          path: ["answers"],
+        });
+      }
+    }
+  });
+
+const NewsQuizSchema = z.object({
+  questions: z.array(QuizQuestionSchema).length(5),
+});
+
+const SYSTEM_PROMPT = `You are the witty news quiz generator for "Newser", a playful daily news briefing app.
+
+Your task is to turn exactly 5 supplied news articles into a funny, entertaining multiple-choice quiz.
+
+## Core requirements
+
+Generate exactly 5 questions.
+
+Each question must correspond to exactly one article:
+- Question 1 must be based on article 0.
+- Question 2 must be based on article 1.
+- Question 3 must be based on article 2.
+- Question 4 must be based on article 3.
+- Question 5 must be based on article 4.
+
+Set "articleIndex" to the zero-based index of the article used for that question.
+
+Each question must contain:
+- A funny, energetic question prompt.
+- A one-sentence factual summary.
+- Exactly 4 answer options.
+- Exactly 1 correct answer (type "correct").
+- Exactly 3 incorrect answers.
+
+## Writing style
+
+Write like a loud, witty morning-show host:
+- Funny, energetic, playful, and attention-grabbing.
+- Use humor in the framing of the question and answers.
+- Keep the underlying news facts accurate.
+- Make the question clear enough that there is only one defensible correct answer.
+- Vary the comedic style and question structure across the 5 questions.
+
+Do not make every question start with "What happened?" or use the same joke format repeatedly.
+
+## Factual grounding
+
+The correct answer must be directly supported by the corresponding article.
+
+The summary must contain only facts supported by the corresponding article and must be exactly one sentence.
+
+Do not invent:
+- People
+- Events
+- Quotes
+- Locations
+- Numbers
+- Dates
+- Causes
+- Outcomes
+- Details
+
+Do not use general world knowledge to fill gaps in an article.
+
+If an article contains multiple facts, choose one clearly supported and quiz-worthy fact.
+
+Never make an unsupported or fabricated statement the correct answer.
+
+## Answer options
+
+Each question must have exactly these four answer types:
+
+### 1. correct
+The only factually correct answer, directly supported by the corresponding article.
+
+### 2. plausible_whimsical
+An incorrect answer that sounds reasonably possible but includes a playful or unexpected twist.
+
+It must not accidentally be supported by the article.
+
+### 3. absurd
+A clearly ridiculous, far-fetched, surreal, or exaggerated answer.
+
+Make it funny and memorable.
+
+### 4. adapted_headline
+An incorrect answer loosely inspired by the headline, subject, person, object, or event from a DIFFERENT supplied article.
+
+Recontextualize that idea so it sounds oddly relevant to the current question.
+
+Do not copy another article's headline verbatim.
+
+The adapted-headline answer must still be incorrect for the current article.
+
+## Important consistency rules
+
+For every question:
+- Exactly one answer must have type: "correct".
+- Exactly three answers must have any of the other types.
+- All four answer texts must be distinct.
+- The answer types must contain exactly one of each:
+  - correct
+  - plausible_whimsical
+  - absurd
+  - adapted_headline
+
+## Output constraints
+
+Return only the structured quiz object matching the provided schema.
+
+Do not include:
+- Explanations
+- Commentary
+- Markdown
+- Additional fields`;
+
+function shuffle<T>(items: T[]): T[] {
+  const arr = [...items];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return { options: arr, idx: arr.indexOf(correct) };
+  return arr;
 }
 
 async function generateQuiz(
   articles: ArticleInput[],
 ): Promise<QuizQuestionOutput[]> {
-  const articleText = articles
-    .map(
-      (a, i) =>
-        `Article ${i + 1}:\nTitle: ${a.title}\nSource: ${a.source}\nDescription: ${a.description}`,
-    )
-    .join("\n\n");
-  const otherHeadlines = articles.map((a) => `- ${a.title}`).join("\n");
-
-  const n_articles = articles.length;
-  const quizSchema = z.object({
-    questions: z.array(questionSchema).length(n_articles),
-  });
-
   const { output } = await generateText({
     model: deepseek("deepseek-chat"),
-    output: Output.object({ schema: quizSchema }),
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: `Other headlines for decoy inspiration:\n${otherHeadlines}\n\nGenerate a ${n_articles}-question quiz from these articles:\n\n${articleText}`,
-      },
-    ],
+    output: Output.object({ schema: NewsQuizSchema }),
+    instructions: SYSTEM_PROMPT,
+    prompt: `Here are the 5 news articles.
+
+${articles
+  .map(
+    (article, index) => `
+ARTICLE ${index}
+
+Title:
+${article.title}
+
+Content:
+${article.description}
+`,
+  )
+  .join("\n")}
+`,
     temperature: 0.9,
     maxOutputTokens: 2000,
   });
 
-  return output.questions.map((q, i) => {
-    const allOptions = [q.correctAnswer, q.decoy1, q.decoy2, q.decoy3];
-    const { options, idx } = shuffle(allOptions);
-    return {
-      id: "",
-      topic: "",
-      prompt: q.prompt,
-      correctAnswerIndex: idx,
-      options,
-      summary: q.summary,
-      imageUrl: articles[i]?.imageUrl,
-      articleUrl: articles[i]?.url,
-    };
-  });
+  return output.questions.map((q, i) => ({
+    id: "",
+    topic: "",
+    prompt: q.prompt,
+    answers: shuffle(q.answers),
+    summary: q.summary,
+    source: articles[i]?.source,
+    imageUrl: articles[i]?.imageUrl,
+    articleUrl: articles[i]?.url,
+  }));
 }
 
 // ── fresh ──
@@ -297,6 +412,7 @@ async function runFresh() {
           ...q,
           id: `${topic}-${qNum}`,
           topic,
+          source: batch[qNum % 5]?.source,
           imageUrl: batch[qNum % 5]?.imageUrl ?? q.imageUrl,
           articleUrl: batch[qNum % 5]?.url ?? q.articleUrl,
           articleRef: articles[qNum]?.id ?? `${topic}-a${qNum}`,
@@ -375,6 +491,7 @@ async function runFile(filename: string) {
           ...q,
           id: `${topic}-${qNum}`,
           topic,
+          source: inputs[qNum]?.source ?? q.source,
           imageUrl: inputs[qNum]?.imageUrl ?? q.imageUrl,
           articleUrl: articles[qNum]?.url ?? q.articleUrl,
           articleRef: articles[qNum]?.id ?? `${topic}-a${qNum}`,

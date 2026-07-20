@@ -93,25 +93,23 @@ export function QuestionCard({
 
         <Radio.Group value={selectedAnswer} onChange={onSelect}>
           <Stack gap="xs">
-            {question.options.map((option, index) => {
-              const isCorrect =
-                answered && index === question.correctAnswerIndex;
+            {question.answers.map((answer, index) => {
+              const isTypeCorrect = answer.type === "correct";
+              const isCorrect = answered && isTypeCorrect;
               const isWrongPick =
-                answered &&
-                selectedAnswer === option &&
-                index !== question.correctAnswerIndex;
+                answered && selectedAnswer === answer.text && !isTypeCorrect;
               return (
                 <Radio.Card
                   className="answer-option"
                   data-correct={isCorrect || undefined}
                   data-wrong={isWrongPick || undefined}
-                  value={option}
-                  key={option}
+                  value={answer.text}
+                  key={answer.text}
                   disabled={answered}
                 >
                   <Group wrap="nowrap" align="flex-start">
                     <Radio.Indicator />
-                    <Text fw={700}>{option}</Text>
+                    <Text fw={700}>{answer.text}</Text>
                   </Group>
                 </Radio.Card>
               );
@@ -122,7 +120,8 @@ export function QuestionCard({
         {answered ? (
           <Stack className="summary-strip" gap="sm">
             <Text fw={800}>
-              {selectedAnswer === question.options[question.correctAnswerIndex]
+              {selectedAnswer ===
+              question.answers.find((a) => a.type === "correct")?.text
                 ? "Correct. The newsroom salutes you."
                 : "Nope. The headline had other plans."}
             </Text>

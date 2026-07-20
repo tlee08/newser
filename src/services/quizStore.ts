@@ -86,8 +86,8 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (!questions) return;
 
     const current = questions[t.currentIndex];
-    const correct =
-      t.selectedAnswer === current.options[current.correctAnswerIndex];
+    const correctAnswer = current.answers.find((a) => a.type === "correct");
+    const correct = t.selectedAnswer === correctAnswer?.text;
 
     set((s) => ({
       topics: {

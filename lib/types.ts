@@ -9,13 +9,18 @@ export type RawArticle = {
   publishedAt?: string;
 };
 
+export type QuizAnswer = {
+  text: string;
+  type: "correct" | "plausible_whimsical" | "absurd" | "adapted_headline";
+};
+
 export type QuizQuestionOutput = {
   id: string;
   topic: string;
   prompt: string;
-  correctAnswerIndex: number;
-  options: string[];
+  answers: QuizAnswer[];
   summary: string;
+  source?: string;
   articleRef?: string;
   imageUrl?: string;
   articleUrl?: string;
